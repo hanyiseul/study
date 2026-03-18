@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>직원 수정</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="page page-narrow">
+        <div class="topbar">
+            <div class="brand">
+                <img class="brand-logo" src="/static/images/tossbank-logo.png" alt="tossbank">
+                <div class="brand-text">
+                    <div class="brand-title">인사관리</div>
+                    <div class="brand-subtitle">Employee Management</div>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <a class="top-chip" href="/employee/detail/{{employee_id}}">상세</a>
+            </div>
+        </div>
+
+        <div class="hero">
+            <h1 class="hero-title">직원 수정</h1>
+            <p class="hero-text">직원 인사 정보를 수정합니다.</p>
+        </div>
+
+        <div class="panel">
+            <div class="form-wrap">
+                <form action="/employee/edit/{{employee_id}}" method="post">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="emp_no">사번</label>
+                            <input type="text" id="emp_no" name="emp_no" value="{{emp_no}}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name">직원명</label>
+                            <input type="text" id="name" name="name" value="{{name}}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="department">부서</label>
+                            <input type="text" id="department" name="department" value="{{department}}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="position">직급</label>
+                            <input type="text" id="position" name="position" value="{{position}}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hire_date">입사일</label>
+                            <input type="date" id="hire_date" name="hire_date" value="{{hire_date}}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="employment_status">재직상태</label>
+                            <select id="employment_status" name="employment_status" required>
+                                <option value="재직" {{selected_status_working}}>재직</option>
+                                <option value="승진" {{selected_status_promoted}}>승진</option>
+                                <option value="휴직" {{selected_status_leave}}>휴직</option>
+                                <option value="퇴사" {{selected_status_resigned}}>퇴사</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="annual_salary">연봉</label>
+                            <input type="number" id="annual_salary" name="annual_salary" value="{{annual_salary}}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tax">세금</label>
+                            <input type="number" id="tax" name="tax" value="{{tax}}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bonus">보너스</label>
+                            <input type="number" id="bonus" name="bonus" value="{{bonus}}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">연락처</label>
+                            <input type="text" id="phone" name="phone" value="{{phone}}" required>
+                        </div>
+
+                        <div class="form-group full">
+                            <label for="address">주소</label>
+                            <input type="text" id="address" name="address" value="{{address}}" required>
+                        </div>
+
+                        <div class="form-group full">
+                            <label for="email">이메일</label>
+                            <input type="email" id="email" name="email" value="{{email}}" required>
+                        </div>
+
+                        <div class="form-group full">
+                            <label for="hr_note">인사 메모</label>
+                            <textarea id="hr_note" name="hr_note" required>{{hr_note}}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="button-row">
+                        <button class="btn flex-1" type="submit">수정 완료</button>
+                        <a class="btn-secondary flex-1" href="/employee/detail/{{employee_id}}">취소</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
