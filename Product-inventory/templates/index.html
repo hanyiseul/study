@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>상품 재고 현황</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:-apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    background:#f5f6f8;
+    padding:20px 16px;
+    color:#222;
+}
+
+.container{
+    width:100%;
+    max-width:420px;
+    margin:0 auto;
+}
+
+h2{
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+button{
+    width:100%;
+    min-height:48px;
+    border:none;
+    border-radius:12px;
+    background:#0064ff;
+    color:white;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    margin-bottom:14px;
+}
+
+button:hover{
+    background:#0052d6;
+}
+
+.status{
+    font-size:14px;
+    color:#666;
+    margin-bottom:16px;
+    min-height:20px;
+}
+
+#list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.product{
+    background:white;
+    border-radius:16px;
+    padding:16px 14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+.info{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+
+.name{
+    font-size:15px;
+    font-weight:600;
+    line-height:1.4;
+    word-break:keep-all;
+    overflow-wrap:break-word;
+}
+
+.meta{
+    font-size:13px;
+    color:#888;
+    line-height:1.4;
+}
+
+.right{
+    flex-shrink:0;
+    text-align:right;
+}
+
+.price{
+    font-size:14px;
+    font-weight:700;
+    color:#222;
+    margin-bottom:4px;
+}
+
+.stock{
+    font-size:13px;
+    font-weight:700;
+}
+
+.high{
+    color:#0064ff;
+}
+
+.low{
+    color:#e53935;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>상품 재고 현황</h2>
+
+<button onclick="loadProductData()">재고 조회</button>
+
+<div class="status" id="status"></div>
+
+<div id="list"></div>
+
+</div>
+
+<script>
+
+async function loadProductData(){ // 서버에서 데이터를 가져와 화면에 출력하는 함수
+
+    const status = document.getElementById("status");
+    const list = document.getElementById("list");
+
+    status.textContent = "재고 데이터를 불러오는 중입니다..."; // 함수 실행시 로딩 처리
+    list.innerHTML = "";
+
+    const response = await fetch("/api/product");  // /api/product api 요청 보내고 응답 객체 받음
+    const data = await response.json(); // 응답 받은 json 데이터를 js 객체로 받아서 변수에 할당
+
+    status.textContent = "재고 데이터 조회가 완료되었습니다."; // 데이터 받은 후 완료 메세지 처리
+
+    data.forEach(item => { // 데이터 배열 반복문
+
+        const div = document.createElement("div");
+        div.className = "product";
+
+        const stockClass = item.stock <= 5 ? "low" : "high"; // 재고가 5개 이하이면 low 클래스, 아니면 high 클래스 적용
+
+        div.innerHTML = `
+        <div class="info">
+            <div class="name">${item.name}</div>
+            <div class="meta">${item.category}</div>
+        </div>
+
+        <div class="right">
+            <div class="price">${item.price.toLocaleString()}원</div>
+            <div class="stock ${stockClass}">재고 ${item.stock}개</div>
+        </div>
+        `;
+
+        list.appendChild(div);
+
+    });
+
+}
+
+/**
+ * 버튼 클릭
+ *    ↓
+ * loadProductData()
+ *    ↓
+ * status 로딩 표시
+ *    ↓
+ * fetch API 요청
+ *    ↓
+ * JSON 변환
+ *    ↓
+ * 반복문
+ *    ↓
+ * DOM 생성
+ *   ↓
+ * append
+*/
+
+</script>
+
+
+</body>
+</html>
