@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>충정일보</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1 class="logo">충정일보</h1>
+  </header>
+  <nav>
+    <ul class="gnb_list"></ul>
+    <button type="button" onclick="location.href='/'">홈으로</button>
+  </nav>
+
+  <main class="register_wrap">
+    <section class="register_box">
+      <h2>기사 등록</h2>
+
+      <form id="newsForm">
+        <div class="form_group">
+          <label>제목</label>
+          <input type="text" name="title" required>
+        </div>
+
+        <div class="form_group">
+          <label>카테고리</label>
+          <select name="category">
+            <option value="정치">정치</option>
+            <option value="경제">경제</option>
+            <option value="IT">IT</option>
+            <option value="스포츠">스포츠</option>
+            <option value="연예">연예</option>
+          </select>
+        </div>
+
+        <div class="form_group">
+          <label>기자</label>
+          <input type="text" name="author" required>
+        </div>
+
+        <div class="form_group">
+          <label>기사 내용</label>
+          <textarea name="content" rows="10"></textarea>
+        </div>
+
+        <button type="submit" class="submit_btn">기사 등록</button>
+      </form>
+    </section>
+  </main>
+</body>
+
+
+<script>
+  const form = document.getElementById("newsForm");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+
+    const data = {
+      title: formData.get("title"),
+      category: formData.get("category"),
+      author: formData.get("author"),
+      content: formData.get("content")
+    };
+
+    const res = await fetch("/api/edit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+      alert("기사 등록 완료");
+      location.href = "/";
+    }
+  });
+  </script>
+</html>

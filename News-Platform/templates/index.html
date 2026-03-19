@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>충정일보</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1 class="logo">충정일보</h1>
+  </header>
+  <nav>
+    <ul class="gnb_list"></ul>
+    <button type="button" id="register" onclick="location.href='/edit'">기사 등록하기</button>
+  </nav>
+  <main>
+    <aside class="side_news">
+      <h3>인기 기사</h3>
+      <ul id="popular"></ul>
+    </aside>
+    <section>
+      <article class="headline">
+        <h2>헤드라인 뉴스</h2>
+        <p>가장 중요한 뉴스 내용</p>
+      </article>
+
+      <article class="main_news">
+        <h3>it 기사</h3>
+        <p>기사 내용...</p>
+      </article>
+
+      <article class="sub_news">
+        <h3>경제 뉴스</h3>
+        <p>추가 기사 내용</p>
+      </article>
+    </section>
+    <div id="status"></div>
+  </main>
+</body>
+
+<script>
+
+  const loding = () => {
+    const status = document.getElementById("status");
+    status.textContent = "기사 로딩중"
+  }
+
+  const lodingEnd = () => {
+    const status = document.getElementById("status");
+    status.textContent = "기사 로딩 완료"
+
+    setTimeout(()=>{
+      status.textContent = "";
+    },1000);
+  }
+
+  async function menuData() {
+    const menu = document.querySelector(".gnb_list");
+
+    menu.innerHTML = "";
+    
+    const response = await fetch("/api/category");
+    const data = await response.json();
+
+    data.forEach(item => {
+      const li = document.createElement("li");
+
+      li.innerHTML = `<a href="#"">${item.category}</a>`
+      menu.appendChild(li);
+    })
+  }
+  menuData();
+
+  async function popular() {
+    const news = document.querySelector("#popular");
+
+    loding();
+    news.innerHTML = "";
+    
+    const response = await fetch("/api/news");
+    const data = await response.json();
+    lodingEnd();
+
+    data.slice(0,3).forEach(item => {
+      const li = document.createElement("li");
+
+      li.innerHTML = `
+        <a href="/detail/${item.id}">
+          <p>${item.title}</p>
+          <span>기자 : ${item.author}</span>
+        </a>
+      `
+      news.appendChild(li);
+    })
+  }
+  popular();
+
+  async function headline() {
+    const headline = document.querySelector(".headline");
+    
+    loding();
+    headline.innerHTML = "";
+    lodingEnd();
+
+    const response = await fetch("/api/news");
+    const data = await response.json();
+
+    data.slice(0,-1).forEach(item => {
+      const news = document.createElement("div");
+
+      headline.innerHTML = `
+        <a href="/detail/${item.id}">
+          <h2>${item.title}</h2>
+          <p>${item.content}</p>
+        </a>
+      `
+      headline.appendChild(news);
+    })
+  }
+  headline();
+  
+  async function main() {
+    const main = document.querySelector(".main_news");
+    
+    loding();
+    main.innerHTML = "";
+    lodingEnd();
+
+    const response = await fetch("/api/itNews");
+    const data = await response.json();
+    console.log(data)
+
+
+    data.slice(0,1).forEach(item => {
+      const news = document.createElement("div");
+
+        main.innerHTML = `
+          <a href="/detail/${item.id}">
+            <h2>${item.title}</h2>
+            <p>${item.content}</p>
+          </a>
+        `
+      main.appendChild(news);
+    })
+  }
+  main();
+
+  async function economy() {
+    const economy = document.querySelector(".sub_news");
+    
+    loding();
+    economy.innerHTML = "";
+    lodingEnd();
+
+    const response = await fetch("/api/ecoNews");
+    const data = await response.json();
+    console.log(data)
+
+
+    data.slice(0,1).forEach(item => {
+      const news = document.createElement("div");
+
+        economy.innerHTML = `
+          <a href="/detail/${item.id}">
+            <h2>${item.title}</h2>
+            <p>${item.content}</p>
+          </a>
+        `
+      economy.appendChild(news);
+    })
+  }
+  economy();
+</script>
+</html> 

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>충정일보</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1 class="logo">충정일보</h1>
+  </header>
+  <nav>
+    <ul class="gnb_list"></ul>
+    <button type="button" onclick="location.href='/'">홈으로</button>
+  </nav>
+
+  <main class="register_wrap">
+    <section class="register_box">
+      <h2>기사 조회</h2>
+
+      <h3 class="title">기사제목</h3>
+      <p class="author">기자</p>
+
+      <hr>
+
+      <div class="content">기사 내용</div>
+    </section>
+  </main>
+</body>
+
+
+<script>
+  async function detailData() {
+    const id = location.pathname.split("/")[2];
+
+    const response = await fetch(`/api/detail/${id}`);
+    const data = await response.json();
+
+    document.querySelector(".title").textContent = data.title;
+    document.querySelector(".author").textContent = `기자 : ${data.author}`;
+    document.querySelector(".content").textContent = data.content;
+  }
+
+  detailData();
+  </script>
+</html>
