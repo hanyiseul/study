@@ -99,19 +99,6 @@
     location.reload();
   }
 
-  async function newsList() {
-    const res = await fetch('/api/newsList');
-    const data = await res.json();
-    const list = document.getElementById('list');
-    data.forEach(item => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        아이디: ${item.user_id} / 권한 :  ${item.Authorization} / 이름 :  ${item.user_name}
-        <button type="button" id="userDel" onclick="userDel('${item.user_id}')">삭제</button>
-      `;
-      list.appendChild(li);
-    });
-  }
   async function userDel(userId){
 
     if(!confirm("삭제하시겠습니까?")) return;
@@ -124,8 +111,6 @@
 
     location.reload();
   }
-
-  
 
   init();
   </script>
