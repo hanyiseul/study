@@ -12,7 +12,12 @@
   </header>
   <nav>
     <ul class="gnb_list"></ul>
-    <button type="button" id="register" onclick="location.href='/edit'">기사 등록하기</button>
+    <div>
+      <button type="button" id="register" style="display:none" onclick="location.href='/edit';" >기사 등록하기</button>
+      <button type="button" id="login" onclick="location.href='/login'">로그인</button>
+      <button type="button" id="logout" style="display:none" onclick="localStorage.removeItem('myToken'); location.href='/';">로그아웃</button>
+      <button type="button" id="dashboard" style="display:none" onclick="location.href='/dashboard';">대시보드</button>
+    </div>
   </nav>
   <main>
     <aside class="side_news">
@@ -171,5 +176,33 @@
     })
   }
   economy();
+
+  async function checkLogin(){
+
+    const token = localStorage.getItem("myToken");
+
+    if(!token) return;
+
+    const payload = JSON.parse(atob(token.split('.')[1]));
+
+    if(payload.role === "REPORTER" || payload.role === "ADMIN" ){
+        document.getElementById("register").style.display = "inline-block";
+        document.getElementById("dashboard").style.display = "inline-block";
+    }else{
+        document.getElementById("register").style.display = "none";
+        document.getElementById("dashboard").style.display = "none";
+    }
+
+    if(payload.role){
+        document.getElementById("logout").style.display = "inline-block";
+        document.getElementById("login").style.display = "none";
+    }else{
+        document.getElementById("logout").style.display = "none";
+        document.getElementById("login").style.display = "inline-block";
+    }
+
+  }
+  checkLogin();
+  
 </script>
 </html> 

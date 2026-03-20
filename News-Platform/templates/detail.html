@@ -12,9 +12,7 @@
   </header>
   <nav>
     <ul class="gnb_list"></ul>
-    <button type="button" onclick="location.href='/'">홈으로</button>
   </nav>
-
   <main class="register_wrap">
     <section class="register_box">
       <h2>기사 조회</h2>
@@ -31,6 +29,24 @@
 
 
 <script>
+  
+  async function menuData() {
+    const menu = document.querySelector(".gnb_list");
+
+    menu.innerHTML = "";
+    
+    const response = await fetch("/api/category");
+    const data = await response.json();
+
+    data.forEach(item => {
+      const li = document.createElement("li");
+
+      li.innerHTML = `<a href="#"">${item.category}</a>`
+      menu.appendChild(li);
+    })
+  }
+  menuData();
+
   async function detailData() {
     const id = location.pathname.split("/")[2];
 

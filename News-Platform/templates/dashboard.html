@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>충정일보</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1 class="logo">충정일보</h1>
+  </header>
+  <nav>
+    <ul class="gnb_list"></ul>
+    <div>
+      <button onclick="localStorage.removeItem('myToken'); location.href='/';">로그아웃</button>
+    </div>
+  </nav>
+  <main style="display: block;">
+    <section class="signupBox">
+      <h1>대시보드</h1>
+      
+      <p id="welcome"></p>
+      <hr>
+      <h3 id="title"></h3>
+      <ul id="list"></ul>
+    </section>
+  </main>
+  <script>
+    
+    async function menuData() {
+      const menu = document.querySelector(".gnb_list");
+
+      menu.innerHTML = "";
+      
+      const response = await fetch("/api/category");
+      const data = await response.json();
+
+      data.forEach(item => {
+        const li = document.createElement("li");
+
+        li.innerHTML = `<a href="#"">${item.category}</a>`
+        menu.appendChild(li);
+      })
+    }
+    menuData();
+
+    async function init() {
+      const token = localStorage.getItem('myToken');
+      if(!token) { location.href = '/'; return; }
+
+      // 1. 토큰 검증 요청 (헤더에 토큰 실어서 보냄)
+      const authRes = await fetch('/api/verify', {
+          headers: {'Authorization': `Bearer ${token}`}
+      });
+      const authData = await authRes.json();
+
+      if(authData.success) {
+          document.getElementById('welcome').innerText = authData.user.userName + "님 반갑습니다.";
+          
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          if(payload.role === "ADMIN"){
+            document.getElementById('welcome').innerText = "계정정보"
+            loadData(); // 인증 성공 시에만 데이터 불러오기
+          } else if(payload.role === "REPORTER") {
+            document.getElementById('welcome').innerText = "내가쓴글"
+
+          }
+          
+          
+      } else {
+          alert('인증이 만료되었습니다.'); location.href = '/';
+      }
+  }
+
+  async function loadData() {
+    const res = await fetch('/api/data');
+    const data = await res.json();
+    const list = document.getElementById('list');
+    data.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        아이디: ${item.user_id} / 권한 :  ${item.Authorization} / 이름 :  ${item.user_name}
+        <button type="button" id="userDel" onclick="userDel('${item.user_id}')">삭제</button>
+      `;
+      list.appendChild(li);
+    });
+  }
+  async function userDel(userId){
+
+    if(!confirm("삭제하시겠습니까?")) return;
+
+    await fetch('/api/userDelete', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({userId})
+    });
+
+    location.reload();
+  }
+
+  async function newsList() {
+    const res = await fetch('/api/newsList');
+    const data = await res.json();
+    const list = document.getElementById('list');
+    data.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        아이디: ${item.user_id} / 권한 :  ${item.Authorization} / 이름 :  ${item.user_name}
+        <button type="button" id="userDel" onclick="userDel('${item.user_id}')">삭제</button>
+      `;
+      list.appendChild(li);
+    });
+  }
+  async function userDel(userId){
+
+    if(!confirm("삭제하시겠습니까?")) return;
+
+    await fetch('/api/userDelete', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({userId})
+    });
+
+    location.reload();
+  }
+
+  
+
+  init();
+  </script>
+</body>
+</html>

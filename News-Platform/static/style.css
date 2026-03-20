@@ -37,3 +37,10 @@ article { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 3px
 .form_group label { display:block; font-weight:bold; margin-bottom:6px; }
 .form_group input, .form_group select, .form_group textarea { width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; }
 .submit_btn { display: block; width: 150px; margin: 0 auto; background:#000; color:#fff; padding:10px 20px; border-radius:4px; }
+/* newsForm */
+.signupBox { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 3px 8px rgba(0,0,0,0.08); display: block; width: 50%; margin: 0 auto; text-align: center;}
+#userForm { width: 80%; margin: 20px auto;}
+.inputWrap {display: flex; gap: 5px; margin: 5px 0;text-align: left;}
+input {border: 1px solid #555; width: 100%;}
+label {width: 100px;}
+.button {margin-top: 20px; border: 1px solid #ccc; background: #ccc; color: #fff; padding: 5px 10px;}

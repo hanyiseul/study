@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>충정일보</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1 class="logo">충정일보</h1>
+  </header>
+  <nav>
+    <ul class="gnb_list"></ul>
+  </nav>
+  <main style="display: block;">
+    <section class="signupBox">
+      <h1>로그인</h1>
+      <form id="userForm">
+        <div class="inputWrap">
+          <label for="uId">아이디</label>
+          <input type="text" id="uId" placeholder="아이디">
+        </div>
+        <div class="inputWrap">
+          <label for="uPw">비밀번호</label>
+          <input type="password" id="uPw" placeholder="비밀번호">
+        </div>
+        <div>
+          <button type="button" class="button" onclick="login()">로그인</button>
+          <button type="button" class="button" onclick="location.href='/signup'">회원가입</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+      async function login() {
+          const res = await fetch('/api/login', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({userId: uId.value, password: uPw.value})
+          });
+
+          const data = await res.json();
+
+          if(data.success) {
+              localStorage.setItem('myToken', data.token);
+              const payload = JSON.parse(atob(data.token.split('.')[1]));
+
+              if(payload.role === "ADMIN"){
+                  location.href = "/dashboard";
+              }else{
+                  location.href = "/";
+              }
+          } else {
+              alert('로그인 실패');
+          }
+      }
+  </script>
+</body>
+</html>
