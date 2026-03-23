@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이벤트 & 비동기 시스템</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h1 { font-size: 1.5rem; color: #1c1e21; margin-bottom: 1.5rem; text-align: center; }
+        button { width: 100%; padding: 12px; background: #0064ff; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #0052d6; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #display { margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; min-height: 120px; font-size: 0.9rem; line-height: 1.6; color: #4b4f56; white-space: pre-line; }
+        .loading-text { color: #0064ff; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>시스템 실행 실습</h1>
+    <button id="fetchBtn">데이터 요청 실행 (Click)</button>
+    
+    <div id="display">버튼을 클릭하여 이벤트를 발생시키세요.</div>
+</div>
+
+<script>
+    // 1. 객체 선택 (DOM 탐색)
+    const fetchBtn = document.getElementById('fetchBtn');
+    const display = document.getElementById('display');
+
+    /**
+     * [핵심 1: 이벤트 시스템]
+     * 객체(fetchBtn)에 조건(click)과 핸들러(async function)를 등록함
+     */
+    fetchBtn.addEventListener('click', async () => {
+        try {
+            // UI 상태 변경 (사용자에게 피드백)
+            fetchBtn.disabled = true;
+            fetchBtn.textContent = "서버 응답 대기 중..."; // 추가
+            display.innerHTML = '<span class="loading-text"> 실행 타이밍 시스템: 대기열(Queue) 진입 후 처리 중...</span>';
+
+            /**
+             * [핵심 2: async/await 비동기 제어]
+             * await를 만나는 순간 이 함수의 실행은 '일시 중단'됨.
+             * 브라우저는 이 동안 멈추지 않고 다른 작업을 할 수 있음.
+             */
+            const response = await fetch('/api/data');
+            
+            if (!response.ok) throw new Error('서버 응답 실패');
+
+            // 데이터를 JS 객체로 변환 (이 또한 비동기 작업)
+            const result = await response.json();
+
+            /**
+             * [핵심 3: 실행 재개]
+             * 응답이 도착하면 중단되었던 지점부터 다시 실행됨.
+             */
+            display.textContent = `수신 성공!\n\n` +
+                                 `메시지: ${result.message}\n` +
+                                 `서버 시간: ${result.serverTime}\n` +
+                                 `데이터: ${result.dataList.join(', ')}`;
+
+        } catch (error) {
+            display.textContent = `오류 발생: ${error.message}`;
+        } finally {
+            fetchBtn.disabled = false;
+        }
+    });
+</script>
+
+</body>
+</html>
