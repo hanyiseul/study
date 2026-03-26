@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 화면</title>
+</head>
+<body>
+    <h1>관리자 화면</h1>
+
+    <div id="welcome"></div>
+    <div id="roleInfo"></div>
+    <br>
+
+    <button onclick="loadData()">새로고침</button>
+    <button onclick="logout()">로그아웃</button>
+
+    <hr>
+
+    <h2>전체 사용자 및 계좌 목록</h2>
+    <ul id="adminUserList"></ul>
+
+    <h2>전체 이체 내역</h2>
+    <ul id="adminTransferList"></ul>
+
+    <h2>전체 거래 내역</h2>
+    <table border="1" cellpadding="6">
+        <thead>
+            <tr>
+                <th>일시</th>
+                <th>구분</th>
+                <th>금액</th>
+                <th>상대계좌</th>
+                <th>잔액</th>
+                <th>메모</th>
+            </tr>
+        </thead>
+        <tbody id="transactionTable"></tbody>
+    </table>
+
+    <hr>
+
+    <h2>사용자 강제 추가</h2>
+    <div>아이디</div>
+    <input type="text" id="adminUserId">
+    <br><br>
+
+    <div>비밀번호</div>
+    <input type="password" id="adminUserPw">
+    <br><br>
+
+    <div>이름</div>
+    <input type="text" id="adminUserName">
+    <br><br>
+
+    <div>역할</div>
+    <select id="adminUserRole">
+        <option value="user">사용자</option>
+        <option value="admin">관리자</option>
+    </select>
+    <br><br>
+
+    <button onclick="addUserByAdmin()">사용자 추가</button>
+
+    <hr>
+
+    <h2>계좌 강제 추가</h2>
+    <div>사용자 아이디</div>
+    <input type="text" id="adminAccountUserId">
+    <br><br>
+
+    <div>계좌번호</div>
+    <input type="text" id="adminAccountNumber">
+    <br><br>
+
+    <div>초기 잔액</div>
+    <input type="number" id="adminAccountBalance">
+    <br><br>
+
+    <button onclick="addAccountByAdmin()">계좌 추가</button>
+
+    <hr>
+
+    <h2>비밀번호 초기화</h2>
+    <div>사용자 아이디</div>
+    <input type="text" id="resetUserId">
+    <br><br>
+
+    <div>새 비밀번호</div>
+    <input type="password" id="resetPasswordInput">
+    <br><br>
+
+    <button onclick="resetUserPassword()">비밀번호 변경</button>
+
+    <hr>
+
+    <h2>예금·적금 상품 추가</h2>
+    <div>상품명</div>
+    <input type="text" id="adminProductName">
+    <br><br>
+
+    <div>상품유형</div>
+    <select id="adminProductType">
+        <option value="DEPOSIT">정기예금</option>
+        <option value="INSTALLMENT">적금</option>
+    </select>
+    <br><br>
+
+    <div>금리</div>
+    <input type="number" id="adminInterestRate" step="0.01">
+    <br><br>
+
+    <div>기간(개월)</div>
+    <input type="number" id="adminPeriodMonths">
+    <br><br>
+
+    <div>최소금액</div>
+    <input type="number" id="adminMinAmount">
+    <br><br>
+
+    <button onclick="addProductByAdmin()">상품 추가</button>
+
+    <h2>전체 상품 목록</h2>
+    <ul id="adminProductList"></ul>
+
+    <hr>
+
+    <h2>사용자 이체 한도 설정</h2>
+    <div>사용자 아이디</div>
+    <input type="text" id="limitUserId">
+    <br><br>
+
+    <div>1일 이체 한도</div>
+    <input type="number" id="dailyLimitInput">
+    <br><br>
+
+    <div>1회 이체 한도</div>
+    <input type="number" id="perTransferLimitInput">
+    <br><br>
+
+    <button onclick="setTransferLimitByAdmin()">이체 한도 설정</button>
+
+    <h2>전체 사용자 이체 한도 목록</h2>
+    <ul id="adminLimitList"></ul>
+
+    <script>
+        function logout() {
+            localStorage.removeItem('myToken');
+            location.href = '/';
+        }
+
+        function typeToKorean(type) {
+            if (type === 'DEPOSIT') return '입금';
+            if (type === 'WITHDRAW') return '출금';
+            if (type === 'TRANSFER_OUT') return '이체출금';
+            if (type === 'TRANSFER_IN') return '이체입금';
+            return type;
+        }
+
+        function productTypeToKorean(type) {
+            if (type === 'DEPOSIT') return '정기예금';
+            if (type === 'INSTALLMENT') return '적금';
+            return type;
+        }
+
+        function formatNumber(value) {
+            return Number(value).toLocaleString('ko-KR');
+        }
+
+        async function loadData() {
+            const token = localStorage.getItem('myToken');
+            if (!token) {
+                location.href = '/';
+                return;
+            }
+
+            const res = await fetch('/api/data', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await res.json();
+
+            if (!data.success) {
+                alert(data.message || '조회 실패');
+                logout();
+                return;
+            }
+
+            if (data.role !== 'admin') {
+                location.href = '/main';
+                return;
+            }
+
+            document.getElementById('welcome').innerText = '관리자 ' + data.users.length + '명 사용자 관리 중';
+            document.getElementById('roleInfo').innerText = '권한: admin';
+
+            const adminUserList = document.getElementById('adminUserList');
+            const adminTransferList = document.getElementById('adminTransferList');
+            const transactionTable = document.getElementById('transactionTable');
+            const adminProductList = document.getElementById('adminProductList');
+            const adminLimitList = document.getElementById('adminLimitList');
+
+            adminUserList.innerHTML = '';
+            adminTransferList.innerHTML = '';
+            transactionTable.innerHTML = '';
+            adminProductList.innerHTML = '';
+            adminLimitList.innerHTML = '';
+
+            data.users.forEach(item => {
+                const li = document.createElement('li');
+                li.innerText = `아이디: ${item.user_id} / 이름: ${item.user_name} / 권한: ${item.role} / 계좌번호: ${item.account_number || '-'} / 잔액: ${formatNumber(item.balance ?? 0)}원`;
+                adminUserList.appendChild(li);
+            });
+
+            data.transfers.forEach(item => {
+                const li = document.createElement('li');
+                li.innerText = `${item.transferred_at} / ${item.sender_user_id} → ${item.receiver_user_id} / ${item.from_account_number} → ${item.to_account_number} / ${formatNumber(item.amount)}원 / ${item.transfer_memo || ''}`;
+                adminTransferList.appendChild(li);
+            });
+
+            data.transactions.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${new Date(item.created_at).toLocaleString('ko-KR')}</td>
+                    <td>${typeToKorean(item.tx_type)}</td>
+                    <td>${formatNumber(item.amount)}원</td>
+                    <td>${item.related_account || '-'}</td>
+                    <td>${formatNumber(item.balance_after)}원</td>
+                    <td>${item.memo || ''}</td>
+                `;
+                transactionTable.appendChild(tr);
+            });
+
+            data.products.forEach(item => {
+                const li = document.createElement('li');
+                li.innerText = `상품ID: ${item.product_id} / 상품명: ${item.product_name} / 유형: ${productTypeToKorean(item.product_type)} / 금리: ${item.interest_rate}% / 기간: ${item.period_months}개월 / 최소금액: ${formatNumber(item.min_amount)}원 / 상태: ${item.status}`;
+                adminProductList.appendChild(li);
+            });
+
+            data.limits.forEach(item => {
+                const li = document.createElement('li');
+                li.innerText = `아이디: ${item.user_id} / 이름: ${item.user_name} / 1일한도: ${formatNumber(item.daily_limit)}원 / 1회한도: ${formatNumber(item.per_transfer_limit)}원 / 금일사용액: ${formatNumber(item.used_today)}원 / 기준일: ${item.last_reset_date}`;
+                adminLimitList.appendChild(li);
+            });
+        }
+
+        async function addUserByAdmin() {
+            const token = localStorage.getItem('myToken');
+
+            const res = await fetch('/api/admin/add-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    userId: document.getElementById('adminUserId').value,
+                    password: document.getElementById('adminUserPw').value,
+                    userName: document.getElementById('adminUserName').value,
+                    role: document.getElementById('adminUserRole').value
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                alert('사용자 추가 완료');
+                document.getElementById('adminUserId').value = '';
+                document.getElementById('adminUserPw').value = '';
+                document.getElementById('adminUserName').value = '';
+                loadData();
+            } else {
+                alert(data.message || '사용자 추가 실패');
+            }
+        }
+
+        async function addAccountByAdmin() {
+            const token = localStorage.getItem('myToken');
+
+            const res = await fetch('/api/admin/add-account', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    userId: document.getElementById('adminAccountUserId').value,
+                    accountNumber: document.getElementById('adminAccountNumber').value,
+                    balance: document.getElementById('adminAccountBalance').value
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                alert('계좌 추가 완료');
+                document.getElementById('adminAccountUserId').value = '';
+                document.getElementById('adminAccountNumber').value = '';
+                document.getElementById('adminAccountBalance').value = '';
+                loadData();
+            } else {
+                alert(data.message || '계좌 추가 실패');
+            }
+        }
+
+        async function resetUserPassword() {
+            const token = localStorage.getItem('myToken');
+
+            const res = await fetch('/api/admin/reset-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    userId: document.getElementById('resetUserId').value,
+                    newPassword: document.getElementById('resetPasswordInput').value
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                alert('비밀번호 변경 완료');
+                document.getElementById('resetUserId').value = '';
+                document.getElementById('resetPasswordInput').value = '';
+                loadData();
+            } else {
+                alert(data.message || '비밀번호 변경 실패');
+            }
+        }
+
+        async function addProductByAdmin() {
+            const token = localStorage.getItem('myToken');
+
+            const res = await fetch('/api/admin/add-product', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    productName: document.getElementById('adminProductName').value,
+                    productType: document.getElementById('adminProductType').value,
+                    interestRate: document.getElementById('adminInterestRate').value,
+                    periodMonths: document.getElementById('adminPeriodMonths').value,
+                    minAmount: document.getElementById('adminMinAmount').value
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                alert('상품 추가 완료');
+                document.getElementById('adminProductName').value = '';
+                document.getElementById('adminInterestRate').value = '';
+                document.getElementById('adminPeriodMonths').value = '';
+                document.getElementById('adminMinAmount').value = '';
+                loadData();
+            } else {
+                alert(data.message || '상품 추가 실패');
+            }
+        }
+
+        async function setTransferLimitByAdmin() {
+            const token = localStorage.getItem('myToken');
+
+            const res = await fetch('/api/admin/set-transfer-limit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    userId: document.getElementById('limitUserId').value,
+                    dailyLimit: document.getElementById('dailyLimitInput').value,
+                    perTransferLimit: document.getElementById('perTransferLimitInput').value
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                alert('이체 한도 설정 완료');
+                document.getElementById('limitUserId').value = '';
+                document.getElementById('dailyLimitInput').value = '';
+                document.getElementById('perTransferLimitInput').value = '';
+                loadData();
+            } else {
+                alert(data.message || '이체 한도 설정 실패');
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+</html>

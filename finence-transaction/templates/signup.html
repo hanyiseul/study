@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+</head>
+<body>
+    <h1>회원가입</h1>
+
+    <div>
+        <div>아이디</div>
+        <input type="text" id="uId">
+    </div>
+    <br>
+
+    <div>
+        <div>비밀번호</div>
+        <input type="password" id="uPw">
+    </div>
+    <br>
+
+    <div>
+        <div>이름</div>
+        <input type="text" id="uName">
+    </div>
+    <br>
+
+    <div>
+        <div>역할</div>
+        <select id="uRole">
+            <option value="user">사용자</option>
+            <option value="admin">관리자</option>
+        </select>
+    </div>
+    <br>
+
+    <button onclick="save()">가입하기</button>
+    <button onclick="location.href='/'">로그인으로 이동</button>
+
+    <script>
+        async function save() {
+            const res = await fetch('/api/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: document.getElementById('uId').value,
+                    password: document.getElementById('uPw').value,
+                    userName: document.getElementById('uName').value,
+                    role: document.getElementById('uRole').value
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                alert('가입 완료\n생성된 계좌번호: ' + data.accountNumber);
+                location.href = '/';
+            } else {
+                alert(data.message || '가입 실패');
+            }
+        }
+    </script>
+</body>
+</html>

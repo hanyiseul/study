@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>메인 대시보드</h1>
+  <p id="welcome"></p>
+  <button onclick="localStorage.removeItem('myToken'); location.href='/';">로그아웃</button>
+  <hr>
+  <h3>지출 내역 (DB에서 비동기 로드)</h3>
+  <ul id="list"></ul>
+
+<script>
+    async function init() {
+        const token = localStorage.getItem('myToken');
+        if(!token) { location.href = '/'; return; }
+
+        // 1. 토큰 검증 요청 (헤더에 토큰 실어서 보냄)
+        const authRes = await fetch('/api/verify', {
+            headers: {'Authorization': `Bearer ${token}`}
+        });
+        const authData = await authRes.json();
+
+        if(authData.success) {
+            document.getElementById('welcome').innerText = authData.user.userName + "님 반갑습니다.";
+            loadData(); // 인증 성공 시에만 데이터 불러오기
+        } else {
+            alert('인증이 만료되었습니다.'); location.href = '/';
+        }
+    }
+
+    async function loadData() {
+        const res = await fetch('/api/data');
+        const data = await res.json();
+        const list = document.getElementById('list');
+        data.forEach(item => {
+            const li = document.createElement('li');
+            li.innerText = `${item.date} - ${item.name}: ${item.amount}원`;
+            list.appendChild(li);
+        });
+    }
+
+    init();
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>로그인</h1>
+
+  <input type="text" id="uId" placeholder="아이디"><br>
+  <input type="password" id="uPw" placeholder="비밀번호"><br>
+
+  <button onclick="login()">로그인</button>
+  <button onclick="location.href='/signup'">회원가입</button>
+
+  <script>
+      async function login() {
+          const res = await fetch('/api/login', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({userId: uId.value, password: uPw.value})
+          });
+
+          const data = await res.json();
+
+          if(data.success) {
+              localStorage.setItem('myToken', data.token);
+              location.href = '/main';
+          } else {
+              alert('로그인 실패');
+          }
+      }
+  </script>
+</body>
+</html>
