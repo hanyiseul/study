@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>실시간 금융 데이터 대시보드</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <div class="logo">FinanceBoard</div>
+            <div class="header-right">
+                <span id="serverTime">데이터 수신 준비중</span>
+            </div>
+        </header>
+
+        <aside class="sidebar">
+            <h2>비동기 조회 메뉴</h2>
+            <ul class="gnb-menu">
+                <li>
+                    <button type="button" class="gnb-button" id="btnSummary" onclick="loadSummaryByButton()">
+                        실시간 요약 조회
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="gnb-button" id="btnSec" onclick="loadSecChartByButton()">
+                        초단위 데이터 조회
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="gnb-button" id="btnFiveSec" onclick="loadFiveSecChartByButton()">
+                        5초 요약 조회
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="gnb-button" id="btnMin" onclick="loadMinChartByButton()">
+                        1분 요약 조회
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="gnb-button" id="btnRefresh" onclick="refreshDashboardByButton()">
+                        전체 대시보드 새로고침
+                    </button>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="main">
+            <section class="card-grid">
+                <div class="card summary-card">
+                    <div class="card-title">현재 가격</div>
+                    <div class="card-value" id="latestPrice">0</div>
+                </div>
+
+                <div class="card summary-card">
+                    <div class="card-title">가격 변동</div>
+                    <div class="card-value" id="changePrice">0</div>
+                </div>
+
+                <div class="card summary-card">
+                    <div class="card-title">현재 거래량</div>
+                    <div class="card-value" id="latestVolume">0</div>
+                </div>
+
+                <div class="card summary-card">
+                    <div class="card-title">체결 강도</div>
+                    <div class="card-value" id="tradeStrength">0</div>
+                </div>
+            </section>
+
+            <section class="content-grid">
+                <div class="card chart-card wide-card">
+                    <div class="card-title">초단위 가격 흐름</div>
+                    <canvas id="secChart"></canvas>
+                </div>
+
+                <div class="card stats-card">
+                    <div class="card-title">최근 1분 요약</div>
+                    <div class="stats-box">
+                        <div class="stats-row"><span>1분 평균가</span><strong id="avgPrice1Min">0</strong></div>
+                        <div class="stats-row"><span>1분 최고가</span><strong id="maxPrice1Min">0</strong></div>
+                        <div class="stats-row"><span>1분 최저가</span><strong id="minPrice1Min">0</strong></div>
+                        <div class="stats-row"><span>1분 거래량 합</span><strong id="totalVolume1Min">0</strong></div>
+                        <div class="stats-row"><span>최근 갱신</span><strong id="updatedAt">-</strong></div>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <div class="card-title">5초 단위 요약</div>
+                    <canvas id="fiveSecChart"></canvas>
+                </div>
+
+                <div class="card chart-card">
+                    <div class="card-title">1분 단위 요약</div>
+                    <canvas id="minChart"></canvas>
+                </div>
+
+                <div class="card stats-card full-card">
+                    <div class="card-title">기준시각 구간 통계</div>
+                    <div class="stats-box">
+                        <div class="stats-row"><span>기준 시각</span><strong id="clickTime">자동 표시 대기중</strong></div>
+                        <div class="stats-row"><span>데이터 개수</span><strong id="dataCount">-</strong></div>
+                        <div class="stats-row"><span>평균 가격</span><strong id="avgPrice">-</strong></div>
+                        <div class="stats-row"><span>최고 가격</span><strong id="maxPrice">-</strong></div>
+                        <div class="stats-row"><span>최저 가격</span><strong id="minPrice">-</strong></div>
+                        <div class="stats-row"><span>거래량 합계</span><strong id="totalVolume">-</strong></div>
+                        <div class="stats-row"><span>평균 체결 강도</span><strong id="avgTradeStrength">-</strong></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/js/chart.js"></script>
+</body>
+</html>
