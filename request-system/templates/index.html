@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>요청 기반 시스템</title>
+</head>
+<body>
+    <input id="name" placeholder="이름 입력">
+    <button onclick="send()">전송</button>
+
+    <script>
+        async function send() {
+            const name = document.getElementById('name').value;
+
+            const res = await fetch('/api/user2', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+
+            const data = await res.json();
+            alert(data.message);
+        }
+    </script>
+</body>
+</html>

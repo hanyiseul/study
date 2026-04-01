@@ -17,19 +17,15 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/transfer', async (req, res) => {
-
-    console.log("API 호출됨");
-    console.log(req.body);
-
     const { from, to, amount } = req.body;
-console.log("from value:", from);
-console.log("type:", typeof from);
+
     const conn = await pool.getConnection();
 
     try {
         await conn.beginTransaction();
+
         const [fromAccount] = await conn.execute(
-            'SELECT balance FROM accounts2 WHERE account_number = ?',
+            'SELECT balance FROM accounts WHERE account_number = ?',
             [from]
         );
 
@@ -42,17 +38,17 @@ console.log("type:", typeof from);
         }
 
         await conn.execute(
-            'UPDATE accounts2 SET balance = balance - ? WHERE account_number = ?',
+            'UPDATE accounts SET balance = balance - ? WHERE account_number = ?',
             [amount, from]
         );
 
         await conn.execute(
-            'UPDATE accounts2 SET balance = balance + ? WHERE account_number = ?',
+            'UPDATE accounts SET balance = balance + ? WHERE account_number = ?',
             [amount, to]
         );
 
         await conn.execute(
-            'INSERT INTO transactions2(from_account, to_account, amount) VALUES (?, ?, ?)',
+            'INSERT INTO transactions(from_account, to_account, amount) VALUES (?, ?, ?)',
             [from, to, amount]
         );
 
@@ -69,6 +65,4 @@ console.log("type:", typeof from);
     }
 });
 
-app.listen(3000, () => {
-    console.log("server running on 2000");
-});
+app.listen(3300);
