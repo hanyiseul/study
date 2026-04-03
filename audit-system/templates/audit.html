@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>감사 로그 조회</title>
+</head>
+<body>
+    <h2>감사 로그 목록</h2>
+    <button onclick="loadAudit()">조회</button>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>번호</th>
+                <th>사용자</th>
+                <th>요청유형</th>
+                <th>출금계좌</th>
+                <th>입금계좌</th>
+                <th>금액</th>
+                <th>상태</th>
+                <th>오류메시지</th>
+                <th>요청시각</th>
+            </tr>
+        </thead>
+        <tbody id="auditList"></tbody>
+    </table>
+
+    <script>
+        async function loadAudit() {
+            const res = await fetch('/api/audit');
+            const data = await res.json();
+
+            const tbody = document.getElementById('auditList');
+            tbody.innerHTML = '';
+
+            for (let i = 0; i < data.length; i++) {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${data[i].id}</td>
+                        <td>${data[i].user_id}</td>
+                        <td>${data[i].action_type}</td>
+                        <td>${data[i].from_account}</td>
+                        <td>${data[i].to_account}</td>
+                        <td>${data[i].amount}</td>
+                        <td>${data[i].status}</td>
+                        <td>${data[i].error_message || ''}</td>
+                        <td>${data[i].created_at}</td>
+                    </tr>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

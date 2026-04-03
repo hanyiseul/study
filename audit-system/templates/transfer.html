@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>감사 로그 포함 계좌이체</title>
+</head>
+<body>
+    <input id="user_id" placeholder="요청 사용자 ID">
+    <input id="from" placeholder="출금 계좌번호">
+    <input id="to" placeholder="입금 계좌번호">
+    <input id="amount" placeholder="금액">
+    <button onclick="transfer()">이체</button>
+    <button onclick="location.href='/audit'">감사 로그 보기</button>
+
+    <script>
+        async function transfer() {
+            const user_id = document.getElementById('user_id').value;
+            const from = document.getElementById('from').value;
+            const to = document.getElementById('to').value;
+            const amount = Number(document.getElementById('amount').value);
+
+            const res = await fetch('/api/transfer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id, from, to, amount })
+            });
+
+            const data = await res.json();
+            alert(data.message);
+        }
+    </script>
+</body>
+</html>

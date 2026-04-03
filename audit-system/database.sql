@@ -1,0 +1,58 @@
+CREATE TABLE accounts3 (
+    account_number VARCHAR(50) PRIMARY KEY,
+    balance INT NOT NULL
+);
+
+CREATE TABLE transactions3 (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    from_account VARCHAR(50),
+    to_account VARCHAR(50),
+    amount INT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE audit_logs3 (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(50),
+    action_type VARCHAR(50),
+    from_account VARCHAR(50),
+    to_account VARCHAR(50),
+    amount INT,
+    status VARCHAR(20),
+    error_message VARCHAR(255),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+INSERT INTO accounts3 (account_number, balance) VALUES
+('ACC001', 1000000),
+('ACC002', 500000),
+('ACC003', 300000),
+('ACC004', 0),
+('ACC005', 700000);
+
+INSERT INTO transactions3 (from_account, to_account, amount, created_at) VALUES
+('ACC001', 'ACC002', 100000, NOW() - INTERVAL 10 MINUTE),
+('ACC002', 'ACC003', 50000, NOW() - INTERVAL 9 MINUTE),
+('ACC003', 'ACC001', 20000, NOW() - INTERVAL 8 MINUTE),
+('ACC001', 'ACC004', 300000, NOW() - INTERVAL 7 MINUTE),
+('ACC005', 'ACC002', 150000, NOW() - INTERVAL 6 MINUTE);
+
+INSERT INTO audit_logs3 
+(user_id, action_type, from_account, to_account, amount, status, error_message, created_at)
+VALUES
+('user1', 'TRANSFER_REQUEST', 'ACC001', 'ACC002', 100000, 'START', NULL, NOW() - INTERVAL 10 MINUTE),
+('user1', 'TRANSFER_RESULT', 'ACC001', 'ACC002', 100000, 'SUCCESS', NULL, NOW() - INTERVAL 10 MINUTE),
+
+('user2', 'TRANSFER_REQUEST', 'ACC002', 'ACC003', 50000, 'START', NULL, NOW() - INTERVAL 9 MINUTE),
+('user2', 'TRANSFER_RESULT', 'ACC002', 'ACC003', 50000, 'SUCCESS', NULL, NOW() - INTERVAL 9 MINUTE),
+
+('user3', 'TRANSFER_REQUEST', 'ACC003', 'ACC004', 400000, 'START', NULL, NOW() - INTERVAL 8 MINUTE),
+('user3', 'TRANSFER_RESULT', 'ACC003', 'ACC004', 400000, 'FAIL', '잔액 부족', NOW() - INTERVAL 8 MINUTE),
+
+('user1', 'TRANSFER_REQUEST', 'ACC001', 'ACC004', 300000, 'START', NULL, NOW() - INTERVAL 7 MINUTE),
+('user1', 'TRANSFER_RESULT', 'ACC001', 'ACC004', 300000, 'SUCCESS', NULL, NOW() - INTERVAL 7 MINUTE),
+
+('user4', 'TRANSFER_REQUEST', 'ACC005', 'ACC002', 150000, 'START', NULL, NOW() - INTERVAL 6 MINUTE),
+('user4', 'TRANSFER_RESULT', 'ACC005', 'ACC002', 150000, 'SUCCESS', NULL, NOW() - INTERVAL 6 MINUTE);
