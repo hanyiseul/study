@@ -1,3 +1,4 @@
+import { useReducer } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 
@@ -12,6 +13,21 @@ function App() {
   const [data, setData] = useState([]);
   const [data2, setData2] = useState([]);
   const [name, setName] = useState('');
+
+  // 여러 변경된 값을 하나의 함수로 관리하는 hook
+  // const [현재 상태값, 상태 변경 요청] = useReducer(상태변경규칙, 초기값)
+  const [state, dispatch] = useReducer(reducer, { count: 0 });
+
+  function reducer(state, action) { // state: 정의한 상태값, action: dispatch
+    switch (action.type) { // type: reducer
+      case 'INCREASE': // 만약 상태값이 증가라면
+        return { count: state.count + 1 }; //count 값을 1씩 증가
+      case 'DECREASE': // 상태값이 감소라면
+        return { count: state.count - 1 }; // count 값을 1씩 감소
+      default:
+        return state;
+    }
+  }
 
   function increase() {
     setCount(count+1);
@@ -71,6 +87,7 @@ function App() {
     e.preventDefault();
     console.log('제출값:', name);
   }
+
   return (
     <>
       <div>
@@ -137,6 +154,14 @@ function App() {
         {data.map(item => (
           <p key={item.id}>{item.title}</p>
         ))}
+      </div>
+      <div>
+        {/* 저장된 state의 카운터값 출력 */}
+        <h1>{state.count}</h1>
+        {/* dispatch -> reducer를 실행시키는 함수 */}
+        <button onClick={() => dispatch({ type: 'INCREASE' })}>증가</button>
+        <button onClick={() => dispatch({ type: 'DECREASE' })}>감소</button>
+        <button onClick={() => dispatch({ type: 'RESET' })}>초기화</button>
       </div>
     </>
   );
