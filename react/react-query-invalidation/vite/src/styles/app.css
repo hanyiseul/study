@@ -1,0 +1,147 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  color: #222;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#root {
+  width: 100%;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.page-title {
+  margin: 0 0 12px 0;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.page-description {
+  margin: 0 0 24px 0;
+  line-height: 1.6;
+  color: #555;
+}
+
+.panel {
+  background-color: #ffffff;
+  border: 1px solid #d9dee5;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.input-box {
+  flex: 1;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #cfd6df;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+}
+
+.input-box:focus {
+  border-color: #2563eb;
+}
+
+.action-button {
+  height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.action-button:disabled {
+  background-color: #9fb8f5;
+  cursor: not-allowed;
+}
+
+.status-box {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.status-loading {
+  background-color: #eef4ff;
+  color: #1d4ed8;
+  border: 1px solid #cfe0ff;
+}
+
+.status-fetching {
+  background-color: #f5faff;
+  color: #0f766e;
+  border: 1px solid #c7ece8;
+}
+
+.status-error {
+  background-color: #fff1f1;
+  color: #c62828;
+  border: 1px solid #f3c1c1;
+}
+
+.status-mutation {
+  background-color: #fff8e8;
+  color: #9a6700;
+  border: 1px solid #f1ddb0;
+}
+
+.list-title {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.user-item {
+  padding: 14px 16px;
+  border: 1px solid #e3e8ee;
+  border-radius: 10px;
+  background-color: #fafbfc;
+}
+
+.user-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.user-id {
+  font-size: 13px;
+  color: #666;
+}
+
+.empty-box {
+  padding: 16px;
+  border: 1px dashed #c8d0da;
+  border-radius: 10px;
+  color: #666;
+  background-color: #fafbfc;
+}
