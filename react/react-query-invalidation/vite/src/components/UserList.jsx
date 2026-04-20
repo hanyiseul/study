@@ -1,5 +1,5 @@
 function UserList({ users }) {
-  if (!users.length) {
+  if (!users.length) { // 데이터가 비어 있을 때의 예외 처리
     return <div className="empty-box">표시할 사용자 데이터가 없습니다.</div>;
   }
 

@@ -3,7 +3,7 @@ import { fetchUsers } from '../api/usersApi';
 
 function UserSummary() {
   const { data } = useQuery({
-    queryKey: ['users'],
+    queryKey: ['users1'],
     queryFn: fetchUsers,
     staleTime: 5000
   });
