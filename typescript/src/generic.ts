@@ -1,5 +1,5 @@
 // 하나의 함수 구조를 여러 타입에 안저하게 적용 가능
-function getFirstItem<T>(items: T[]): T { 
+function getFirstItem<T>(items: T[]): T | undefined { 
   return items[0];
 }
 
