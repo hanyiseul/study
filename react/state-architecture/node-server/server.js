@@ -1,12 +1,15 @@
-const express = require('express');
+// express 프레임워크 호출 -> 서버 생성, API라우팅, 정적 파일 제공을 담당
+const express = require('express'); 
+// db 모듈 호출 -> async/await 방식으로 다루기 위해 mysql2/promise를 사용
 const mysql = require('mysql2/promise');
+// 파일 경로를 운영체제에 맞게 안전하게 결합하기 위한 Node 내장 모듈
 const path = require('path');
 
 const app = express();
 const PORT = 3000;
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'static')));
+app.use(express.json()); // Post 요청에서 JSON 요청 본문을 req.body에서 읽을 수 있게 함
+app.use(express.static(path.join(__dirname, 'static'))); // React build 결과를 브라우저에 정적 파일로 제공
 
 // db 연결 풀 생성 -> db 연결을 재사용하여 성능을 안정적으로 유지
 const pool = mysql.createPool({
@@ -33,7 +36,7 @@ app.get('/api/account', async (req, res) => {
 });
 
 // 거래 내역 조회
-app.get('/api/transactions', async (req, res) => {
+app.get('/api/transactions', async (req, res) => { // React Query의 useQuery가 이 API를 호출
   try {
     const [rows] = await pool.query(`
       SELECT id, sender_name, amount, created_at

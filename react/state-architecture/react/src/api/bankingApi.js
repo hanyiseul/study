@@ -2,7 +2,7 @@
 export async function fetchAccount() { 
   const res = await fetch('/api/account');
 
-  if (!res.ok) {
+  if (!res.ok) { // 서버 응답이 실패인 경우 오류 발생
     throw new Error('계좌 조회 실패');
   }
 
@@ -10,7 +10,7 @@ export async function fetchAccount() {
 }
 
 // 거래 내역 목록 조회 함수
-// 리액ㅌ 쿼리의 useQuery가 이 함수 호출
+// 리액트 쿼리의 useQuery가 이 함수 호출
 export async function fetchTransactions() {
   const res = await fetch('/api/transactions');
 

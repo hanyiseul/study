@@ -1,4 +1,4 @@
-import useStore from '../store';
+import useStore from '../store'; // Client State를 가져옴
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createTransaction,
@@ -29,6 +29,7 @@ export function useBankingState() {
   const createMutation = useMutation({
     mutationFn: createTransaction,
     onSuccess: () => {
+      // Query Invalidation
       queryClient.invalidateQueries({ queryKey: ['transactions'] }); // 등록 이후 서버 기준으로 거래 목록을 다시 가져옴
     }
   });

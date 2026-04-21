@@ -4,7 +4,7 @@ import AccountSummary from '../components/AccountSummary';
 import TransactionList from '../components/TransactionList';
 import { useBankingState } from '../hooks/useBankingState';
 
-function BankingPage() {
+function BankingPage() { // 전체 화면을 조립하는 역할
   const {
     theme,
     toggleTheme,

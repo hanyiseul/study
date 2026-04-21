@@ -5,6 +5,7 @@ function SearchBox() {
   const [keyword, setKeyword] = useState('');
 
   return (
+    // 입력창의 값이 React 상태와 연결 -> 이 구조를 제어 컴포넌트라고 함
     <input
       value={keyword}
       onChange={(e) => setKeyword(e.target.value)}
