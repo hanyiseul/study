@@ -4,7 +4,7 @@ export function toAmount(value: unknown) {
   if (!Number.isFinite(amount) || amount <= 0) {
     throw new Error('유효한 금액이 아닙니다.');
   }
-
+  
   return amount;
 }
 
