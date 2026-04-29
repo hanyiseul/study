@@ -1,206 +1,63 @@
 import { NextRequest } from 'next/server';
-import { ResultSetHeader, RowDataPacket } from 'mysql2';
+import { RowDataPacket } from 'mysql2';
 import pool from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
-import { badRequest, created, ok, unauthorized } from '@/lib/responses';
+import { ok, unauthorized } from '@/lib/responses';
 
-type TransferBody = { // 계좌이체 요청에서 받을 데이터 타입
-  fromAccountId: number; // 출금 계좌 ID
-  toAccountId: number; // 입금 계좌 ID
-  amount: number; // 이체 금액
-  memo?: string; // 이체 메모
-};
-
-type AccountRow = RowDataPacket & {
-  id: number;
-  balance: string;
-};
-
-export async function GET() { // 계좌이체 이력 목록
+export async function GET(request: NextRequest) {
   const user = await getSessionUser();
 
   if (!user) {
     return unauthorized();
   }
 
-  const [rows] = await pool.query(
+  const { searchParams } = new URL(request.url);
+
+  const page = Number(searchParams.get('page') || 1);
+  const limit = Number(searchParams.get('limit') || 10);
+  const offset = (page - 1) * limit;
+
+  // 전체 개수 조회
+  const [[countRow]] = await pool.query<RowDataPacket[]>(
     `
-    SELECT
-      tr.id,
-      tr.from_account_id,
-      fa.account_name AS from_account_name,
-      fa.account_number AS from_account_number,
-      tr.to_account_id,
-      ta.account_name AS to_account_name,
-      ta.account_number AS to_account_number,
-      tr.amount,
-      tr.memo,
-      tr.created_at
-    FROM account_transfers tr
-    JOIN accounts fa ON tr.from_account_id = fa.id
-    JOIN accounts ta ON tr.to_account_id = ta.id
-    WHERE tr.user_id = ?
-    ORDER BY tr.id DESC
+    SELECT COUNT(*) as totalCount
+    FROM account_transactions
+    WHERE user_id = ?
     `,
     [user.userId]
   );
 
+  const totalCount = countRow.totalCount;
+  const totalPages = Math.ceil(totalCount / limit);
+
+  // 실제 데이터 조회 (페이지네이션 적용)
+  const [rows] = await pool.query<RowDataPacket[]>(
+    `
+    SELECT
+      at.id,
+      at.account_id,
+      a.account_name,
+      at.transaction_type,
+      at.amount,
+      at.memo,
+      at.created_at
+    FROM account_transactions at
+    JOIN accounts a ON at.account_id = a.id
+    WHERE at.user_id = ?
+    ORDER BY at.id DESC
+    LIMIT ? OFFSET ?
+    `,
+    [user.userId, limit, offset]
+  );
+
+  // 프론트에서 기대하는 구조로 반환
   return ok({
-    transfers: rows
+    transactions: rows,
+    pagination: {
+      page,
+      limit,
+      totalCount,
+      totalPages
+    }
   });
-}
-
-export async function POST(request: NextRequest) { // 현재 로그인한 사용자의 이체 이력만 조회
-  const user = await getSessionUser(); // 계좌이체를 등록하는 api
-
-  if (!user) {
-    return unauthorized();
-  }
-
-  const body = (await request.json()) as TransferBody;
-
-  if (!body.fromAccountId || !body.toAccountId || !body.amount) { // 현재 로그인 사용자 확인
-    return badRequest('출금 계좌, 입금 계좌, 이체 금액은 필수입니다.');
-  }
-
-  if (body.fromAccountId === body.toAccountId) { // 출금 계좌, 입금 계좌, 이체 금액이 모두 있는지 확인
-    return badRequest('같은 계좌로는 이체할 수 없습니다.');
-  }
-
-  if (body.amount <= 0) { // 같은 계좌로 이체하는 요청을 차단
-    return badRequest('이체 금액은 0보다 커야 합니다.');
-  }
-
-  const connection = await pool.getConnection(); // 이체 금액이 0 이하인 경우 요청 거부
-
-  try {
-    await connection.beginTransaction(); // 트랜잭션 처리를 위해 커넥션 풀에서 하나의 커넥션을 가져옴
-
-    // 계좌이체 작업을 하나의 트랜잭션으로 시작
-    const firstLockId = Math.min(body.fromAccountId, body.toAccountId);
-    const secondLockId = Math.max(body.fromAccountId, body.toAccountId);
-
-    // 출금 계좌와 입근 계좌를 항상 작은 ID부터 잠그기 위해 정렬
-    const [firstRows] = await connection.query<AccountRow[]>(
-      `
-      SELECT id, balance
-      FROM accounts
-      WHERE id = ? AND user_id = ? AND status = 'active'
-      FOR UPDATE
-      `,
-      [firstLockId, user.userId]
-    );
-
-    const [secondRows] = await connection.query<AccountRow[]>(
-      `
-      SELECT id, balance
-      FROM accounts
-      WHERE id = ? AND user_id = ? AND status = 'active'
-      FOR UPDATE
-      `,
-      [secondLockId, user.userId]
-    );
-
-    const lockedAccounts = [...firstRows, ...secondRows];
-
-    const fromAccount = lockedAccounts.find(function (account) {
-      return account.id === body.fromAccountId;
-    });
-
-    const toAccount = lockedAccounts.find(function (account) {
-      return account.id === body.toAccountId;
-    });
-
-    if (!fromAccount || !toAccount) {
-      await connection.rollback();
-      return badRequest('사용 가능한 이체 계좌가 없습니다.');
-    }
-
-    const fromBalance = Number(fromAccount.balance);
-    const toBalance = Number(toAccount.balance);
-
-    if (fromBalance < body.amount) {
-      await connection.rollback();
-      return badRequest('출금 계좌의 잔액이 부족합니다.');
-    }
-
-    const nextFromBalance = fromBalance - body.amount;
-    const nextToBalance = toBalance + body.amount;
-
-    await connection.query<ResultSetHeader>(
-      `
-      UPDATE accounts
-      SET balance = ?
-      WHERE id = ? AND user_id = ?
-      `,
-      [nextFromBalance, body.fromAccountId, user.userId]
-    );
-
-    await connection.query<ResultSetHeader>(
-      `
-      UPDATE accounts
-      SET balance = ?
-      WHERE id = ? AND user_id = ?
-      `,
-      [nextToBalance, body.toAccountId, user.userId]
-    );
-
-    await connection.query<ResultSetHeader>(
-      `
-      INSERT INTO account_transactions
-        (account_id, user_id, transaction_type, amount, memo)
-      VALUES (?, ?, ?, ?, ?)
-      `,
-      [
-        body.fromAccountId,
-        user.userId,
-        'withdraw',
-        body.amount,
-        body.memo || '계좌이체 출금'
-      ]
-    );
-
-    await connection.query<ResultSetHeader>(
-      `
-      INSERT INTO account_transactions
-        (account_id, user_id, transaction_type, amount, memo)
-      VALUES (?, ?, ?, ?, ?)
-      `,
-      [
-        body.toAccountId,
-        user.userId,
-        'deposit',
-        body.amount,
-        body.memo || '계좌이체 입금'
-      ]
-    );
-
-    await connection.query<ResultSetHeader>(
-      `
-      INSERT INTO account_transfers
-        (from_account_id, to_account_id, user_id, amount, memo)
-      VALUES (?, ?, ?, ?, ?)
-      `,
-      [
-        body.fromAccountId,
-        body.toAccountId,
-        user.userId,
-        body.amount,
-        body.memo || null
-      ]
-    );
-
-    await connection.commit();
-
-    return created({
-      message: '계좌이체가 완료되었습니다.',
-      fromAccountBalance: nextFromBalance,
-      toAccountBalance: nextToBalance
-    });
-  } catch {
-    await connection.rollback();
-    return badRequest('계좌이체 처리 중 오류가 발생했습니다.');
-  } finally {
-    connection.release();
-  }
 }

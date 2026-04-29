@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useAccounts } from '@/hooks/useAccounts';
 
@@ -105,6 +106,10 @@ export default function AccountsPage() {
                   <td>{Number(account.balance).toLocaleString()}원</td>
                   <td>{account.status}</td>
                   <td>
+                    <Link href={`/accounts/${account.id}`}>
+                      상세
+                    </Link>
+
                     <button
                       type="button"
                       onClick={async function () {

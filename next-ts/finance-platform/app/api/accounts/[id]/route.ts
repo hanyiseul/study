@@ -1,13 +1,65 @@
 import { NextRequest } from 'next/server';
-import { ResultSetHeader } from 'mysql2';
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import pool from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
 import { badRequest, ok, unauthorized } from '@/lib/responses';
+
+type AccountRow = RowDataPacket & {
+  id: number;
+  account_number: string;
+  account_name: string;
+  balance: string;
+  status: 'active' | 'closed';
+  created_at: string;
+};
 
 type UpdateAccountBody = {
   accountName: string;
   status: 'active' | 'closed';
 };
+
+export async function GET(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const user = await getSessionUser();
+
+  if (!user) {
+    return unauthorized();
+  }
+
+  const { id } = await context.params;
+  const accountId = Number(id);
+
+  if (!accountId) {
+    return badRequest('계좌 ID가 올바르지 않습니다.');
+  }
+
+  const [rows] = await pool.query<AccountRow[]>(
+    `
+    SELECT
+      id,
+      account_number,
+      account_name,
+      balance,
+      status,
+      created_at
+    FROM accounts
+    WHERE id = ? AND user_id = ?
+    `,
+    [accountId, user.userId]
+  );
+
+  const account = rows[0];
+
+  if (!account) {
+    return badRequest('계좌를 찾을 수 없습니다.');
+  }
+
+  return ok({
+    account
+  });
+}
 
 export async function PUT(
   request: NextRequest,
