@@ -17,6 +17,7 @@ export default async function DashboardPage() {
           <Link href="/account-transfer">계좌이체</Link>
           <Link href="/transactions">거래 내역</Link>
           <Link href="/admin/users">관리자 사용자 관리</Link>
+          <Link href="/admin/accounts">관리자 계좌 관리</Link>
           <LogoutButton />
         </div>
       </section>
