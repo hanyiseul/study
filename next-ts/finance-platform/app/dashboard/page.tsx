@@ -13,6 +13,8 @@ export default async function DashboardPage() {
 
         <div className="buttonGroup">
           <Link href="/accounts">계좌 관리</Link>
+          <Link href="/transfer">입금/출금</Link>
+          <Link href="/account-transfer">계좌이체</Link>
           <Link href="/transactions">거래 내역</Link>
           <Link href="/admin/users">관리자 사용자 관리</Link>
           <LogoutButton />

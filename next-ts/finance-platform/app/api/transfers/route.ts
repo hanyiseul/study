@@ -4,11 +4,11 @@ import pool from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
 import { badRequest, created, ok, unauthorized } from '@/lib/responses';
 
-type TransferBody = { // 계좌이체 요청에서 받을 데이터 타입
-  fromAccountId: number; // 출금 계좌 ID
-  toAccountId: number; // 입금 계좌 ID
-  amount: number; // 이체 금액
-  memo?: string; // 이체 메모
+type TransferBody = {
+  fromAccountId: number;
+  toAccountId: number;
+  amount: number;
+  memo?: string;
 };
 
 type AccountRow = RowDataPacket & {
@@ -16,7 +16,7 @@ type AccountRow = RowDataPacket & {
   balance: string;
 };
 
-export async function GET() { // 계좌이체 이력 목록
+export async function GET() {
   const user = await getSessionUser();
 
   if (!user) {
@@ -50,8 +50,8 @@ export async function GET() { // 계좌이체 이력 목록
   });
 }
 
-export async function POST(request: NextRequest) { // 현재 로그인한 사용자의 이체 이력만 조회
-  const user = await getSessionUser(); // 계좌이체를 등록하는 api
+export async function POST(request: NextRequest) {
+  const user = await getSessionUser();
 
   if (!user) {
     return unauthorized();
@@ -59,57 +59,47 @@ export async function POST(request: NextRequest) { // 현재 로그인한 사용
 
   const body = (await request.json()) as TransferBody;
 
-  if (!body.fromAccountId || !body.toAccountId || !body.amount) { // 현재 로그인 사용자 확인
+  if (!body.fromAccountId || !body.toAccountId || !body.amount) {
     return badRequest('출금 계좌, 입금 계좌, 이체 금액은 필수입니다.');
   }
 
-  if (body.fromAccountId === body.toAccountId) { // 출금 계좌, 입금 계좌, 이체 금액이 모두 있는지 확인
+  if (body.fromAccountId === body.toAccountId) {
     return badRequest('같은 계좌로는 이체할 수 없습니다.');
   }
 
-  if (body.amount <= 0) { // 같은 계좌로 이체하는 요청을 차단
+  if (body.amount <= 0) {
     return badRequest('이체 금액은 0보다 커야 합니다.');
   }
 
-  const connection = await pool.getConnection(); // 이체 금액이 0 이하인 경우 요청 거부
+  const connection = await pool.getConnection();
 
   try {
-    await connection.beginTransaction(); // 트랜잭션 처리를 위해 커넥션 풀에서 하나의 커넥션을 가져옴
+    await connection.beginTransaction();
 
-    // 계좌이체 작업을 하나의 트랜잭션으로 시작
-    const firstLockId = Math.min(body.fromAccountId, body.toAccountId);
-    const secondLockId = Math.max(body.fromAccountId, body.toAccountId);
-
-    // 출금 계좌와 입근 계좌를 항상 작은 ID부터 잠그기 위해 정렬
-    const [firstRows] = await connection.query<AccountRow[]>(
+    // 🔥 출금 계좌 (내 계좌만)
+    const [fromRows] = await connection.query<AccountRow[]>(
       `
       SELECT id, balance
       FROM accounts
       WHERE id = ? AND user_id = ? AND status = 'active'
       FOR UPDATE
       `,
-      [firstLockId, user.userId]
+      [body.fromAccountId, user.userId]
     );
 
-    const [secondRows] = await connection.query<AccountRow[]>(
+    // 🔥 입금 계좌 (전체 허용)
+    const [toRows] = await connection.query<AccountRow[]>(
       `
       SELECT id, balance
       FROM accounts
-      WHERE id = ? AND user_id = ? AND status = 'active'
+      WHERE id = ? AND status = 'active'
       FOR UPDATE
       `,
-      [secondLockId, user.userId]
+      [body.toAccountId]
     );
 
-    const lockedAccounts = [...firstRows, ...secondRows];
-
-    const fromAccount = lockedAccounts.find(function (account) {
-      return account.id === body.fromAccountId;
-    });
-
-    const toAccount = lockedAccounts.find(function (account) {
-      return account.id === body.toAccountId;
-    });
+    const fromAccount = fromRows[0];
+    const toAccount = toRows[0];
 
     if (!fromAccount || !toAccount) {
       await connection.rollback();
@@ -127,6 +117,7 @@ export async function POST(request: NextRequest) { // 현재 로그인한 사용
     const nextFromBalance = fromBalance - body.amount;
     const nextToBalance = toBalance + body.amount;
 
+    // 🔥 출금 (내 계좌)
     await connection.query<ResultSetHeader>(
       `
       UPDATE accounts
@@ -136,15 +127,17 @@ export async function POST(request: NextRequest) { // 현재 로그인한 사용
       [nextFromBalance, body.fromAccountId, user.userId]
     );
 
+    // 🔥 입금 (타 계좌 포함)
     await connection.query<ResultSetHeader>(
       `
       UPDATE accounts
       SET balance = ?
-      WHERE id = ? AND user_id = ?
+      WHERE id = ?
       `,
-      [nextToBalance, body.toAccountId, user.userId]
+      [nextToBalance, body.toAccountId]
     );
 
+    // 거래 기록
     await connection.query<ResultSetHeader>(
       `
       INSERT INTO account_transactions
@@ -175,6 +168,7 @@ export async function POST(request: NextRequest) { // 현재 로그인한 사용
       ]
     );
 
+    // 이체 기록
     await connection.query<ResultSetHeader>(
       `
       INSERT INTO account_transfers
