@@ -128,9 +128,12 @@ export default function DashboardPage() {
           <Link href="/transfer">입금/출금</Link>
           <Link href="/account-transfer">계좌이체</Link>
           <Link href="/transactions">거래 내역</Link>
+          <Link href="/profile">내 정보</Link>
           <Link href="/admin/users">관리자 사용자 관리</Link>
           <Link href="/admin/accounts">관리자 계좌 관리</Link>
           <Link href="/admin/transactions">관리자 거래 내역</Link>
+          <Link href="/admin/login-logs">관리자 접속 로그</Link>
+          <Link href="/password">비밀번호 변경</Link>
           <LogoutButton />
         </div>
       </section>
