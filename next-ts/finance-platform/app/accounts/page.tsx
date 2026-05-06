@@ -41,6 +41,11 @@ export default function AccountsPage() {
   async function handleCreate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (!form.accountNumber || !form.accountName) {
+      alert('계좌번호와 계좌명을 입력하세요.');
+      return;
+    }
+
     await createMutation.mutateAsync(form);
 
     setForm({
@@ -48,6 +53,8 @@ export default function AccountsPage() {
       accountName: '',
       balance: 0
     });
+
+    setMessage('계좌가 등록되었습니다.');
   }
 
   async function handleUpdateAlias(accountId: number) {
@@ -85,17 +92,66 @@ export default function AccountsPage() {
     await accountsQuery.refetch();
   }
 
+  async function handleCloseRequest(accountId: number) {
+    const reason = prompt('계좌 해지 사유를 입력하세요.');
+
+    if (reason === null) {
+      return;
+    }
+
+    const response = await fetch(`/api/accounts/${accountId}/close-request`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        reason
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setMessage(data.message || '계좌 해지 요청에 실패했습니다.');
+      return;
+    }
+
+    setMessage(data.message);
+
+    await accountsQuery.refetch();
+  }
+
+  async function handleDelete(accountId: number) {
+    const confirmed = confirm(
+      '정말 계좌를 삭제하시겠습니까? 교육용 기능입니다. 금융 서비스 흐름에서는 해지 요청을 사용하는 것이 더 적절합니다.'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    await deleteMutation.mutateAsync(accountId);
+
+    setMessage('계좌가 삭제되었습니다.');
+
+    await accountsQuery.refetch();
+  }
+
   return (
     <main className="page">
       <section className="card">
         <h1>계좌 관리</h1>
+        <p>계좌를 등록하고, 계좌 별칭 변경 및 해지 요청을 처리합니다.</p>
 
         <form className="formGrid" onSubmit={handleCreate}>
           <input
             placeholder="계좌번호"
             value={form.accountNumber}
             onChange={function (event) {
-              setForm({ ...form, accountNumber: event.target.value });
+              setForm({
+                ...form,
+                accountNumber: event.target.value
+              });
             }}
           />
 
@@ -103,7 +159,10 @@ export default function AccountsPage() {
             placeholder="계좌명"
             value={form.accountName}
             onChange={function (event) {
-              setForm({ ...form, accountName: event.target.value });
+              setForm({
+                ...form,
+                accountName: event.target.value
+              });
             }}
           />
 
@@ -112,14 +171,25 @@ export default function AccountsPage() {
             placeholder="초기 잔액"
             value={form.balance}
             onChange={function (event) {
-              setForm({ ...form, balance: Number(event.target.value) });
+              setForm({
+                ...form,
+                balance: Number(event.target.value)
+              });
             }}
           />
 
-          <button type="submit">계좌 등록</button>
+          <button type="submit" disabled={createMutation.isPending}>
+            {createMutation.isPending ? '등록 중' : '계좌 등록'}
+          </button>
         </form>
 
         {message && <p>{message}</p>}
+
+        <div className="buttonGroup">
+          <Link href="/dashboard">대시보드</Link>
+          <Link href="/transactions">거래 내역</Link>
+          <Link href="/account-transfer">계좌이체</Link>
+        </div>
       </section>
 
       <section className="card">
@@ -128,6 +198,7 @@ export default function AccountsPage() {
         <table>
           <thead>
             <tr>
+              <th>계좌 ID</th>
               <th>계좌번호</th>
               <th>계좌명</th>
               <th>잔액</th>
@@ -141,6 +212,7 @@ export default function AccountsPage() {
             {accounts.map(function (account) {
               return (
                 <tr key={account.id}>
+                  <td>{account.id}</td>
                   <td>{account.account_number}</td>
                   <td>{account.account_name}</td>
                   <td>{Number(account.balance).toLocaleString()}원</td>
@@ -164,6 +236,7 @@ export default function AccountsPage() {
                         onClick={function () {
                           handleUpdateAlias(account.id);
                         }}
+                        disabled={account.status !== 'active'}
                       >
                         별칭 변경
                       </button>
@@ -171,18 +244,31 @@ export default function AccountsPage() {
                   </td>
 
                   <td>
-                    <Link href={`/accounts/${account.id}`}>
-                      상세
-                    </Link>
+                    <div className="inlineForm">
+                      <Link href={`/accounts/${account.id}`}>
+                        상세
+                      </Link>
 
-                    <button
-                      type="button"
-                      onClick={async function () {
-                        await deleteMutation.mutateAsync(account.id);
-                      }}
-                    >
-                      삭제
-                    </button>
+                      <button
+                        type="button"
+                        onClick={function () {
+                          handleCloseRequest(account.id);
+                        }}
+                        disabled={account.status !== 'active'}
+                      >
+                        해지 요청
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={function () {
+                          handleDelete(account.id);
+                        }}
+                        disabled={deleteMutation.isPending}
+                      >
+                        삭제
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
@@ -190,7 +276,7 @@ export default function AccountsPage() {
 
             {accounts.length === 0 && (
               <tr>
-                <td colSpan={6}>등록된 계좌가 없습니다.</td>
+                <td colSpan={7}>등록된 계좌가 없습니다.</td>
               </tr>
             )}
           </tbody>

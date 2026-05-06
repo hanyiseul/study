@@ -155,3 +155,41 @@ VALUES
 (3,2,2,8000,'테스트8'),
 (4,2,3,9000,'테스트9'),
 (2,4,1,10000,'테스트10');
+
+CREATE TABLE account_close_requests (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  account_id BIGINT NOT NULL,
+  user_id BIGINT NOT NULL,
+  reason VARCHAR(255),
+  status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+  admin_memo VARCHAR(255),
+  requested_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  processed_at DATETIME NULL,
+  processed_by BIGINT NULL,
+  CONSTRAINT fk_close_requests_account
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_close_requests_user
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_close_requests_admin
+    FOREIGN KEY (processed_by) REFERENCES users(id)
+    ON DELETE SET NULL
+);
+
+CREATE TABLE admin_audit_logs (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  admin_user_id BIGINT NULL,
+  action VARCHAR(100) NOT NULL,
+  target_type VARCHAR(100) NOT NULL,
+  target_id BIGINT NULL,
+  description VARCHAR(500),
+  before_data JSON NULL,
+  after_data JSON NULL,
+  ip_address VARCHAR(100),
+  user_agent VARCHAR(500),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_admin_audit_logs_admin
+    FOREIGN KEY (admin_user_id) REFERENCES users(id)
+    ON DELETE SET NULL
+);

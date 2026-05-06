@@ -16,12 +16,45 @@ type AccountRow = RowDataPacket & {
   balance: string;
 };
 
-export async function GET() {
+type CountRow = RowDataPacket & {
+  totalCount: number;
+};
+
+type TransferLimitRow = RowDataPacket & {
+  daily_transfer_limit: string;
+};
+
+type UsedTransferRow = RowDataPacket & {
+  usedTransfer: string;
+};
+
+export async function GET(request: NextRequest) {
   const user = await getSessionUser();
 
   if (!user) {
     return unauthorized();
   }
+
+  const searchParams = request.nextUrl.searchParams;
+
+  const page = Number(searchParams.get('page') || 1);
+  const limit = Number(searchParams.get('limit') || 10);
+
+  const safePage = page > 0 ? page : 1;
+  const safeLimit = limit > 0 ? limit : 10;
+  const offset = (safePage - 1) * safeLimit;
+
+  const [countRows] = await pool.query<CountRow[]>(
+    `
+    SELECT COUNT(*) AS totalCount
+    FROM account_transfers
+    WHERE user_id = ?
+    `,
+    [user.userId]
+  );
+
+  const totalCount = Number(countRows[0]?.totalCount || 0);
+  const totalPages = Math.ceil(totalCount / safeLimit);
 
   const [rows] = await pool.query(
     `
@@ -41,12 +74,19 @@ export async function GET() {
     JOIN accounts ta ON tr.to_account_id = ta.id
     WHERE tr.user_id = ?
     ORDER BY tr.id DESC
+    LIMIT ? OFFSET ?
     `,
-    [user.userId]
+    [user.userId, safeLimit, offset]
   );
 
   return ok({
-    transfers: rows
+    transfers: rows,
+    pagination: {
+      page: safePage,
+      limit: safeLimit,
+      totalCount,
+      totalPages
+    }
   });
 }
 
@@ -76,33 +116,73 @@ export async function POST(request: NextRequest) {
   try {
     await connection.beginTransaction();
 
-    // 🔥 출금 계좌 (내 계좌만)
-    const [fromRows] = await connection.query<AccountRow[]>(
+    const [limitRows] = await connection.query<TransferLimitRow[]>(
+      `
+      SELECT daily_transfer_limit
+      FROM user_transaction_limits
+      WHERE user_id = ?
+      `,
+      [user.userId]
+    );
+
+    const dailyTransferLimit = Number(
+      limitRows[0]?.daily_transfer_limit || 3000000
+    );
+
+    const [usedRows] = await connection.query<UsedTransferRow[]>(
+      `
+      SELECT COALESCE(SUM(amount), 0) AS usedTransfer
+      FROM account_transfers
+      WHERE user_id = ?
+        AND DATE(created_at) = CURDATE()
+      `,
+      [user.userId]
+    );
+
+    const usedTransfer = Number(usedRows[0]?.usedTransfer || 0);
+
+    if (usedTransfer + body.amount > dailyTransferLimit) {
+      await connection.rollback();
+
+      return badRequest('일일 계좌이체 한도를 초과했습니다.');
+    }
+
+    const firstLockId = Math.min(body.fromAccountId, body.toAccountId);
+    const secondLockId = Math.max(body.fromAccountId, body.toAccountId);
+
+    const [firstRows] = await connection.query<AccountRow[]>(
       `
       SELECT id, balance
       FROM accounts
       WHERE id = ? AND user_id = ? AND status = 'active'
       FOR UPDATE
       `,
-      [body.fromAccountId, user.userId]
+      [firstLockId, user.userId]
     );
 
-    // 🔥 입금 계좌 (전체 허용)
-    const [toRows] = await connection.query<AccountRow[]>(
+    const [secondRows] = await connection.query<AccountRow[]>(
       `
       SELECT id, balance
       FROM accounts
-      WHERE id = ? AND status = 'active'
+      WHERE id = ? AND user_id = ? AND status = 'active'
       FOR UPDATE
       `,
-      [body.toAccountId]
+      [secondLockId, user.userId]
     );
 
-    const fromAccount = fromRows[0];
-    const toAccount = toRows[0];
+    const lockedAccounts = [...firstRows, ...secondRows];
+
+    const fromAccount = lockedAccounts.find(function (account) {
+      return account.id === body.fromAccountId;
+    });
+
+    const toAccount = lockedAccounts.find(function (account) {
+      return account.id === body.toAccountId;
+    });
 
     if (!fromAccount || !toAccount) {
       await connection.rollback();
+
       return badRequest('사용 가능한 이체 계좌가 없습니다.');
     }
 
@@ -111,13 +191,13 @@ export async function POST(request: NextRequest) {
 
     if (fromBalance < body.amount) {
       await connection.rollback();
+
       return badRequest('출금 계좌의 잔액이 부족합니다.');
     }
 
     const nextFromBalance = fromBalance - body.amount;
     const nextToBalance = toBalance + body.amount;
 
-    // 🔥 출금 (내 계좌)
     await connection.query<ResultSetHeader>(
       `
       UPDATE accounts
@@ -127,17 +207,15 @@ export async function POST(request: NextRequest) {
       [nextFromBalance, body.fromAccountId, user.userId]
     );
 
-    // 🔥 입금 (타 계좌 포함)
     await connection.query<ResultSetHeader>(
       `
       UPDATE accounts
       SET balance = ?
-      WHERE id = ?
+      WHERE id = ? AND user_id = ?
       `,
-      [nextToBalance, body.toAccountId]
+      [nextToBalance, body.toAccountId, user.userId]
     );
 
-    // 거래 기록
     await connection.query<ResultSetHeader>(
       `
       INSERT INTO account_transactions
@@ -168,7 +246,6 @@ export async function POST(request: NextRequest) {
       ]
     );
 
-    // 이체 기록
     await connection.query<ResultSetHeader>(
       `
       INSERT INTO account_transfers
@@ -189,10 +266,13 @@ export async function POST(request: NextRequest) {
     return created({
       message: '계좌이체가 완료되었습니다.',
       fromAccountBalance: nextFromBalance,
-      toAccountBalance: nextToBalance
+      toAccountBalance: nextToBalance,
+      usedTransfer: usedTransfer + body.amount,
+      dailyTransferLimit
     });
   } catch {
     await connection.rollback();
+
     return badRequest('계좌이체 처리 중 오류가 발생했습니다.');
   } finally {
     connection.release();
