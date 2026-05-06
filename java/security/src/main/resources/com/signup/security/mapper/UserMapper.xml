@@ -1,0 +1,107 @@
+<!-- sql 매핑 파일 (자바와 DB의 매핑) -->
+<?xml version="1.0" encoding="UTF-8" ?> <!--xml 파일 선언-->
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> <!-- MyBatis mapper 규칙 따름 -->
+
+<mapper namespace="com.aloha.security.mapper.UserMapper"> <!-- mapper 시작 태그 -> 자바 인터페이스와 연결-->
+
+  <!-- resultMap: 조회 결과를 Users객체로 매핑하는 설정 : 태그가 id일 경우 pk 의미 / 태그가 result일 경우 일반키 의미 -->
+  <resultMap id="UserMap" type="Users"> <!-- id="UserMap"은 이 매핑 규칙 이름-->
+    <!-- property: 컬럼값 / column: DB 컬럼명 -->
+    <id property="no" column="no"/>  
+    <result property="id" column="id"/>
+    <result property="username" column="username"/>
+    <result property="password" column="password"/>
+    <result property="name" column="name"/>
+    <result property="email" column="email"/>
+    <result property="enabled" column="enabled"/>
+    <result property="createdAt" column="created_at"/>
+    <result property="updatedAt" column="updated_at"/>
+
+    <!-- JOIN 쿼리를 짜고 AuthMap 연결하는 방식 -->
+    <!-- <collection property="authList" resultMap="AuthMap"></collection> -->
+
+    <!-- 별도 SELECT 로 연결 -->
+    <!-- User.authList 리스트 채우는 설정 (리스트 내부 타입은 UserAuth) - List<UserAuth> -->
+    <!-- select="selectAuth" : authList 채울 때 selectAuth sql 실행 -->
+    <!-- column="username" : 현재 조회한 user의 username 값을 selectAuth에 전달 -->
+    <collection property="authList" ofType="UserAuth"
+      select="selectAuth"
+      column="username">
+    </collection>
+  </resultMap>
+
+  <resultMap id="AuthMap" type="UserAuth">
+    <result property="no" column="no" />
+    <result property="username" column="username" />
+    <result property="auth" column="auth" />
+  </resultMap>
+
+  <!-- 회원 가입 -->
+  <insert id="join"> <!-- java의 join() 메서드와 연결-->
+    <!-- 회원 가입 쿼리 -->
+    INSERT INTO user ( id, username, password, name, email )
+    VALUES ( #{id}, #{username}, #{password}, #{name}, #{email} )
+  </insert>
+
+  <!-- 회원 권한 등록 -->
+  <insert id="insertAuth"> <!-- java의 insertAuth() 메서드와 연결-->
+    <!-- 회원 권한 등록 쿼리 -->
+    INSERT INTO user_auth ( id, username, auth )
+    VALUES ( #{id}, #{username}, #{auth} )
+  </insert>
+
+  <!-- 회원 조회 -->
+  <!-- <select id="select" resultMap="UserMap">
+    SELECT u.*
+          ,auth
+    FROM user u
+          LEFT JOIN user_auth auth ON u.username = auth.username
+    WHERE u.username = #{username}
+  </select> -->
+
+  <!-- 회원 조회 등록 -->
+  <select id="select" resultMap="UserMap">
+    <!-- 회원 조회 등록 쿼리 -->
+    SELECT *
+    FROM user
+    WHERE username = #{username}
+  </select>
+
+  <!-- 권한 조회 -->
+  <select id="selectAuth" resultType="UserAuth">
+  <!-- 권한 조회 쿼리 -->
+    SELECT *
+    FROM user_auth
+    WHERE username = #{username}
+  </select>
+
+  <!-- 회원 정보 수정 -->
+  <update id="update"> <!-- java의 update() 메서드와 연결-->
+    UPDATE user
+    <set> <!-- null이 아닌 경우에만 -->
+        <if test="password != null">password = #{password},</if>
+        <if test="name != null">name = #{name},</if>
+        <if test="email != null">email = #{email},</if>
+    </set>
+    <!-- 
+      SET password = #{password}
+        , name = #{name}
+        , email = #{email}
+    -->
+    WHERE username = #{username}
+  </update>
+    
+  </update>
+</mapper>
+
+
+<!--
+  MyBatis: SQL 매핑 프레임워크로, 자바 객체와 SQL 쿼리를 매핑하여 데이터베이스와의 상호작용을 간편하게 만들어 줌
+  Controller: 사용자 요청을 처리하는 계층
+    -> Service: 비즈니스 로직을 처리하는 계층
+      -> Mapper: 데이터베이스와의 상호작용을 담당하는 계층 (Java 인터페이스)
+        -> Mapper.xml(SQL) : Mapper 인터페이스의 메서드와 SQL 쿼리를 매핑하는 XML 파일
+          -> DB: 실제 데이터가 저장되는 곳
+-->
