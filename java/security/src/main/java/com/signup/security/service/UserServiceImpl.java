@@ -91,10 +91,11 @@ public class UserServiceImpl implements UserService { // UswerService 인터페�
         return result;
     }
 
+    // 권한 추가 메서드
     @Override
     public int insertAuth(UserAuth userAuth) throws Exception {
-        int result = userMapper.insertAuth(userAuth);
-        return result;
+        int result = userMapper.insertAuth(userAuth); // 권한 테이블 insert 요청
+        return result; // 결과반환
     }
     
 }
