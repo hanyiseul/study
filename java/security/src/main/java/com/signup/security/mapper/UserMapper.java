@@ -1,3 +1,10 @@
+package com.signup.security.mapper; // 이 인터페이스가 속한 패키지(폴더 구조) 지정
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.signup.security.dto.UserAuth;
+import com.signup.security.dto.Users;
+
 @Mapper // Mybatis Mapper 명시 -> Spring 실행 시 이 인터페이스를 구현체로 자동 생성
 
 // UserMapper 인터페이스 : 회원 관련 DB 작업을 위한 메서드 선언
