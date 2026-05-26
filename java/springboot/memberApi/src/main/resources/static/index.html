@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Boot 회원 관리 실습</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="page">
+    <header class="header">
+        <div>
+            <p class="eyebrow">Spring Boot + MariaDB</p>
+            <h1>회원 관리 API 실습</h1>
+            <p class="description">
+                이 화면은 정적 HTML에서 fetch()로 Spring Boot REST API를 호출하고,
+                MariaDB에 저장된 회원 데이터를 조회·등록·수정·삭제하는 흐름을 확인한다.
+            </p>
+        </div>
+        <button class="primary-button" onclick="loadMembers()">회원 목록 새로고침</button>
+    </header>
+
+    <section class="summary-grid">
+        <div class="summary-card">
+            <span>전체 회원</span>
+            <strong id="totalCount">0</strong>
+        </div>
+        <div class="summary-card">
+            <span>활성 회원</span>
+            <strong id="activeCount">0</strong>
+        </div>
+        <div class="summary-card">
+            <span>비활성 회원</span>
+            <strong id="inactiveCount">0</strong>
+        </div>
+        <div class="summary-card">
+            <span>삭제 상태</span>
+            <strong id="deletedCount">0</strong>
+        </div>
+    </section>
+
+    <main class="content-grid">
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2>회원 등록</h2>
+                    <p>POST /api/members 요청을 전송한다.</p>
+                </div>
+            </div>
+
+            <form id="createForm" class="form">
+                <label>
+                    이메일
+                    <input type="email" id="createEmail" placeholder="newuser@test.com" required>
+                </label>
+
+                <label>
+                    이름
+                    <input type="text" id="createName" placeholder="신규회원" required>
+                </label>
+
+                <label>
+                    비밀번호
+                    <input type="password" id="createPassword" placeholder="1234" required>
+                </label>
+
+                <button type="submit" class="primary-button full">회원 등록</button>
+            </form>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2>회원 수정</h2>
+                    <p>PUT /api/members/{id} 요청을 전송한다.</p>
+                </div>
+            </div>
+
+            <form id="updateForm" class="form">
+                <label>
+                    회원 ID
+                    <input type="number" id="updateId" placeholder="수정할 회원 ID" required>
+                </label>
+
+                <label>
+                    이름
+                    <input type="text" id="updateName" placeholder="수정회원" required>
+                </label>
+
+                <label>
+                    상태
+                    <select id="updateStatus" required>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                        <option value="DELETED">DELETED</option>
+                    </select>
+                </label>
+
+                <button type="submit" class="secondary-button full">회원 수정</button>
+            </form>
+        </section>
+    </main>
+
+    <section class="panel table-panel">
+        <div class="panel-header">
+            <div>
+                <h2>회원 목록</h2>
+                <p>GET /api/members 응답 결과를 테이블로 출력한다.</p>
+            </div>
+            <div class="status-box" id="messageBox">대기 중</div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>이메일</th>
+                    <th>이름</th>
+                    <th>역할</th>
+                    <th>상태</th>
+                    <th>로그인 수</th>
+                    <th>최근 로그인</th>
+                    <th>생성일</th>
+                    <th>기능</th>
+                </tr>
+                </thead>
+                <tbody id="memberTableBody">
+                <tr>
+                    <td colspan="9" class="empty">회원 목록을 불러오는 중입니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<script>
+    const API_BASE = "/api/members";
+
+    const messageBox = document.getElementById("messageBox");
+    const tableBody = document.getElementById("memberTableBody");
+
+    function setMessage(message) {
+        messageBox.textContent = message;
+    }
+
+    function formatDate(value) {
+        if (!value) {
+            return "-";
+        }
+
+        return value.replace("T", " ").substring(0, 19);
+    }
+
+    function updateSummary(members) {
+        document.getElementById("totalCount").textContent = members.length;
+        document.getElementById("activeCount").textContent =
+            members.filter(member => member.status === "ACTIVE").length;
+        document.getElementById("inactiveCount").textContent =
+            members.filter(member => member.status === "INACTIVE").length;
+        document.getElementById("deletedCount").textContent =
+            members.filter(member => member.status === "DELETED").length;
+    }
+
+    async function loadMembers() {
+        try {
+            setMessage("회원 목록 조회 중");
+
+            const response = await fetch(API_BASE);
+
+            if (!response.ok) {
+                throw new Error("회원 목록 조회 실패");
+            }
+
+            const members = await response.json();
+
+            updateSummary(members);
+            renderMembers(members);
+
+            setMessage("회원 목록 조회 완료");
+        } catch (error) {
+            tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty">${error.message}</td>
+                    </tr>
+                `;
+            setMessage("오류 발생");
+        }
+    }
+
+    function renderMembers(members) {
+        if (members.length === 0) {
+            tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty">등록된 회원이 없습니다.</td>
+                    </tr>
+                `;
+            return;
+        }
+
+        tableBody.innerHTML = members.map(member => `
+                <tr>
+                    <td>${member.id}</td>
+                    <td>${member.email}</td>
+                    <td>${member.name}</td>
+                    <td>${member.role}</td>
+                    <td>
+                        <span class="badge ${member.status.toLowerCase()}">
+                            ${member.status}
+                        </span>
+                    </td>
+                    <td>${member.loginCount}</td>
+                    <td>${formatDate(member.lastLoginAt)}</td>
+                    <td>${formatDate(member.createdAt)}</td>
+                    <td>
+                        <div class="action-group">
+                            <button onclick="fillUpdateForm(${member.id}, '${member.name}', '${member.status}')">
+                                수정값 입력
+                            </button>
+                            <button onclick="increaseLoginCount(${member.id})">
+                                로그인 증가
+                            </button>
+                            <button class="danger" onclick="deleteMember(${member.id})">
+                                삭제
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join("");
+    }
+
+    function fillUpdateForm(id, name, status) {
+        document.getElementById("updateId").value = id;
+        document.getElementById("updateName").value = name;
+        document.getElementById("updateStatus").value = status;
+        setMessage("수정 폼에 회원 정보 입력 완료");
+    }
+
+    document.getElementById("createForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const requestBody = {
+            email: document.getElementById("createEmail").value,
+            name: document.getElementById("createName").value,
+            password: document.getElementById("createPassword").value
+        };
+
+        try {
+            setMessage("회원 등록 요청 중");
+
+            const response = await fetch(API_BASE, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                throw new Error("회원 등록 실패");
+            }
+
+            this.reset();
+            await loadMembers();
+            setMessage("회원 등록 완료");
+        } catch (error) {
+            setMessage(error.message);
+        }
+    });
+
+    document.getElementById("updateForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const id = document.getElementById("updateId").value;
+
+        const requestBody = {
+            name: document.getElementById("updateName").value,
+            status: document.getElementById("updateStatus").value
+        };
+
+        try {
+            setMessage("회원 수정 요청 중");
+
+            const response = await fetch(`${API_BASE}/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                throw new Error("회원 수정 실패");
+            }
+
+            this.reset();
+            await loadMembers();
+            setMessage("회원 수정 완료");
+        } catch (error) {
+            setMessage(error.message);
+        }
+    });
+
+    async function increaseLoginCount(id) {
+        try {
+            setMessage("로그인 횟수 증가 요청 중");
+
+            const response = await fetch(`${API_BASE}/${id}/login-count`, {
+                method: "PATCH"
+            });
+
+            if (!response.ok) {
+                throw new Error("로그인 횟수 증가 실패");
+            }
+
+            await loadMembers();
+            setMessage("로그인 횟수 증가 완료");
+        } catch (error) {
+            setMessage(error.message);
+        }
+    }
+
+    async function deleteMember(id) {
+        const confirmed = confirm(`${id}번 회원을 삭제하시겠습니까?`);
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            setMessage("회원 삭제 요청 중");
+
+            const response = await fetch(`${API_BASE}/${id}`, {
+                method: "DELETE"
+            });
+
+            if (!response.ok) {
+                throw new Error("회원 삭제 실패");
+            }
+
+            await loadMembers();
+            setMessage("회원 삭제 완료");
+        } catch (error) {
+            setMessage(error.message);
+        }
+    }
+
+    loadMembers();
+</script>
+</body>
+</html>
