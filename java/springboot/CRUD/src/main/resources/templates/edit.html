@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원 수정</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>회원 수정</h1>
+
+    <section class="card">
+        <form th:action="@{/members/{id}/edit(id=${member.id})}" method="post" th:object="${memberForm}">
+            <div class="form-row">
+                <label>이름</label>
+                <input type="text" th:field="*{name}" required>
+            </div>
+
+            <div class="form-row">
+                <label>이메일</label>
+                <input type="email" th:field="*{email}" required>
+            </div>
+
+            <button type="submit">수정 완료</button>
+            <a href="/members" class="cancel-link">목록으로</a>
+        </form>
+    </section>
+</div>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원 관리</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>회원 관리</h1>
+
+    <section class="card">
+        <h2>회원 등록</h2>
+
+        <form action="/members" method="post" th:object="${memberForm}">
+            <div class="form-row">
+                <label>이름</label>
+                <input type="text" th:field="*{name}" placeholder="이름 입력" required>
+            </div>
+
+            <div class="form-row">
+                <label>이메일</label>
+                <input type="email" th:field="*{email}" placeholder="이메일 입력" required>
+            </div>
+
+            <button type="submit">등록</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>회원 목록</h2>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>이름</th>
+                <th>이메일</th>
+                <th>관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="member : ${members}">
+                <td th:text="${member.id}">1</td>
+                <td th:text="${member.name}">홍길동</td>
+                <td th:text="${member.email}">hong@test.com</td>
+                <td>
+                    <a th:href="@{/members/{id}/edit(id=${member.id})}">수정</a>
+
+                    <form th:action="@{/members/{id}/delete(id=${member.id})}" method="post" class="inline-form">
+                        <button type="submit" class="delete-button">삭제</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+</body>
+</html>
