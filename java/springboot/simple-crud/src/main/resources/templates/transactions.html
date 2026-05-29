@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>금융 트랜젝션 관리</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>금융 트랜젝션 관리</h1>
+
+    <section class="card">
+        <h2>계좌 목록</h2>
+
+        <table>
+            <thead>
+            <tr>
+                <th>계좌번호</th>
+                <th>예금주</th>
+                <th>잔액</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="account : ${accounts}">
+                <td th:text="${account.accountNumber}">100-111</td>
+                <td th:text="${account.ownerName}">김도현</td>
+                <td th:text="${#numbers.formatInteger(account.balance, 0, 'COMMA')}">1,000,000</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card">
+        <h2>거래 등록</h2>
+
+        <div class="error-box" th:if="${errorMessage != null}" th:text="${errorMessage}">
+            오류 메시지
+        </div>
+
+        <form action="/transactions" method="post" th:object="${transactionForm}">
+            <div class="form-row">
+                <label>계좌번호</label>
+                <select th:field="*{accountNumber}" required>
+                    <option value="">계좌 선택</option>
+                    <option th:each="account : ${accounts}"
+                            th:value="${account.accountNumber}"
+                            th:text="${account.accountNumber + ' / ' + account.ownerName}">
+                        100-111 / 김도현
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label>거래 유형</label>
+                <select th:field="*{transactionType}" required>
+                    <option value="">거래 유형 선택</option>
+                    <option value="DEPOSIT">입금</option>
+                    <option value="WITHDRAW">출금</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label>금액</label>
+                <input type="number" th:field="*{amount}" placeholder="금액 입력" min="1" required>
+            </div>
+
+            <div class="form-row">
+                <label>메모</label>
+                <input type="text" th:field="*{memo}" placeholder="거래 메모 입력">
+            </div>
+
+            <button type="submit">거래 등록</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>거래 내역</h2>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>계좌번호</th>
+                <th>거래 유형</th>
+                <th>금액</th>
+                <th>메모</th>
+                <th>등록 시각</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="transaction : ${transactions}">
+                <td th:text="${transaction.id}">1</td>
+                <td th:text="${transaction.accountNumber}">100-111</td>
+                <td th:text="${transaction.transactionType}">DEPOSIT</td>
+                <td th:text="${#numbers.formatInteger(transaction.amount, 0, 'COMMA')}">100,000</td>
+                <td th:text="${transaction.memo}">입금</td>
+                <td th:text="${#temporals.format(transaction.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
+                    2026-05-26 10:00:00
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+</body>
+</html>
