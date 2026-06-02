@@ -1,7 +1,7 @@
 package com.example.simplecrud.controller;
 
-import com.example.demo.dto.SignupForm;
-import com.example.demo.service.SignupService;
+import com.example.simplecrud.dto.SignupForm;
+import com.example.simplecrud.service.SignupService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
