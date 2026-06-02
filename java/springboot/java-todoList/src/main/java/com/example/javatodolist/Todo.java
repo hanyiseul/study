@@ -26,3 +26,15 @@ public class Todo {
         return completed;
     }
 }
+
+/**
+ * 사용자
+ *    ↓
+ * TodoService.addTodo()
+ *    ↓
+ * Todo 객체 생성
+ *    ↓
+ * TodoRepository.save()
+ *    ↓
+ * List<Todo> 저장
+ * */
