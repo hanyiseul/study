@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>간단 회원가입</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="page">
+    <section class="card form-card">
+        <h1>간단 회원가입</h1>
+        <p class="description">
+            이메일, 비밀번호, 이름을 입력하면 DTO, Controller, Service, Repository를 거쳐 MariaDB에 저장됩니다.
+        </p>
+
+        <div class="error-box" th:if="${errorMessage != null}" th:text="${errorMessage}">
+            오류 메시지
+        </div>
+
+        <form action="/members" method="post" th:object="${signupForm}">
+            <div class="field">
+                <label>이메일</label>
+                <input type="email" th:field="*{email}" placeholder="user@test.com">
+            </div>
+
+            <div class="field">
+                <label>비밀번호</label>
+                <input type="password" th:field="*{password}" placeholder="비밀번호">
+            </div>
+
+            <div class="field">
+                <label>이름</label>
+                <input type="text" th:field="*{name}" placeholder="홍길동">
+            </div>
+
+            <button type="submit">회원가입</button>
+        </form>
+    </section>
+
+    <section class="card list-card">
+        <h2>회원 목록</h2>
+        <p class="description">
+            DB에서 조회된 데이터가 Member Domain 객체로 변환된 뒤 화면에 출력됩니다.
+        </p>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>이메일</th>
+                <th>비밀번호</th>
+                <th>이름</th>
+                <th>가입시각</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="member : ${members}">
+                <td th:text="${member.id}">1</td>
+                <td th:text="${member.email}">user@test.com</td>
+                <td th:text="${member.password}">1234</td>
+                <td th:text="${member.name}">홍길동</td>
+                <td th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
+                    2026-01-01 10:00:00
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+</body>
+</html>
