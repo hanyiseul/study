@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>WMS 계약 관리</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark">W</div>
+            <div>
+                <strong>WMS Part II</strong>
+                <span>Contract Module</span>
+            </div>
+        </div>
+
+        <nav class="menu">
+            <a class="active">계약 관리</a>
+            <a>입고 관리</a>
+            <a>재고 관리</a>
+            <a>출고 관리</a>
+            <a>공지사항</a>
+            <a>문의사항</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <section class="hero">
+            <p class="eyebrow">PART II</p>
+            <h1>Spring Boot 계층 구조 기반 WMS 계약 등록·조회</h1>
+            <p>
+                계약 등록 화면 입력값은 DTO로 전달하고, Service에서 검증한 뒤,
+                Repository가 MariaDB에 SQL을 실행합니다.
+            </p>
+        </section>
+
+        <section class="summary-grid">
+            <article>
+                <span>전체 계약</span>
+                <strong th:text="${totalCount}">0</strong>
+                <p>등록된 전체 계약</p>
+            </article>
+            <article>
+                <span>계약요청</span>
+                <strong th:text="${requestedCount}">0</strong>
+                <p>승인 대기 계약</p>
+            </article>
+            <article>
+                <span>계약확정</span>
+                <strong th:text="${confirmedCount}">0</strong>
+                <p>입고 진행 가능</p>
+            </article>
+            <article>
+                <span>계약취소</span>
+                <strong th:text="${canceledCount}">0</strong>
+                <p>중단된 계약</p>
+            </article>
+        </section>
+
+        <section class="message" th:if="${errorMessage != null}">
+            <p th:text="${errorMessage}"></p>
+        </section>
+
+        <section class="workspace">
+            <div class="panel form-panel">
+                <div class="panel-title">
+                    <h2>계약 등록</h2>
+                    <p>고객의 보관 요청 정보를 입력한다.</p>
+                </div>
+
+                <form method="post" action="/contracts" th:object="${contractForm}">
+                    <label>
+                        고객명
+                        <input type="text" th:field="*{customerName}" placeholder="예: 한경물류">
+                    </label>
+
+                    <label>
+                        상품명
+                        <input type="text" th:field="*{productName}" placeholder="예: 유압 실린더">
+                    </label>
+
+                    <label>
+                        수량
+                        <input type="number" th:field="*{quantity}" min="1" placeholder="예: 100">
+                    </label>
+
+                    <label>
+                        창고명
+                        <input type="text" th:field="*{warehouseName}" placeholder="예: A창고">
+                    </label>
+
+                    <label>
+                        보관유형
+                        <select th:field="*{storageType}">
+                            <option value="">선택</option>
+                            <option value="NORMAL">일반</option>
+                            <option value="COLD">냉장</option>
+                            <option value="FROZEN">냉동</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        요청사항
+                        <textarea th:field="*{requestMemo}" placeholder="요청사항을 입력한다."></textarea>
+                    </label>
+
+                    <button type="submit">계약 등록</button>
+                </form>
+            </div>
+
+            <div class="panel list-panel">
+                <div class="panel-title">
+                    <h2>계약 목록</h2>
+                    <p>계약 상태를 확인하고 요청 상태의 계약을 확정 또는 취소한다.</p>
+                </div>
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>계약번호</th>
+                        <th>고객명</th>
+                        <th>상품명</th>
+                        <th>수량</th>
+                        <th>창고</th>
+                        <th>보관유형</th>
+                        <th>상태</th>
+                        <th>계약일</th>
+                        <th>처리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="contract : ${contracts}">
+                        <td th:text="${contract.id}"></td>
+                        <td th:text="${contract.customerName}"></td>
+                        <td th:text="${contract.productName}"></td>
+                        <td th:text="${contract.quantity}"></td>
+                        <td th:text="${contract.warehouseName}"></td>
+                        <td th:text="${contract.storageTypeLabel}"></td>
+                        <td>
+                            <span class="status" th:classappend="${contract.contractStatus}"
+                                  th:text="${contract.statusLabel}"></span>
+                        </td>
+                        <td th:text="${contract.contractDate}"></td>
+                        <td>
+                            <div class="actions" th:if="${contract.requested}">
+                                <form th:action="@{/contracts/{id}/confirm(id=${contract.id})}" method="post">
+                                    <button class="confirm" type="submit">확정</button>
+                                </form>
+                                <form th:action="@{/contracts/{id}/cancel(id=${contract.id})}" method="post">
+                                    <button class="cancel" type="submit">취소</button>
+                                </form>
+                            </div>
+                            <span class="done" th:unless="${contract.requested}">처리완료</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>
