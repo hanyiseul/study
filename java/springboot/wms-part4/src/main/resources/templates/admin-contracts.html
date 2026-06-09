@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>계약 관리</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar dark">
+        <div class="brand">
+            <div class="brand-mark">A</div>
+            <div>
+                <strong>WMS 관리자</strong>
+                <span>Admin</span>
+            </div>
+        </div>
+
+        <nav class="menu">
+            <a href="/admin/dashboard">대시보드</a>
+            <a class="active" href="/admin/contracts">계약 관리</a>
+            <a href="/admin/inbounds">입고 관리</a>
+            <a href="/admin/inventories">재고 관리</a>
+            <a href="/admin/outbounds">출고 관리</a>
+            <a href="/admin/notices">공지사항</a>
+            <a href="/admin/inquiries">문의사항</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <section class="hero">
+            <p class="eyebrow">CONTRACT</p>
+            <h1>계약 관리</h1>
+            <p>고객 계약을 등록하고 계약요청 상태의 계약을 확정한다.</p>
+        </section>
+
+        <section class="workspace">
+            <div class="panel">
+                <h2>계약 등록</h2>
+
+                <form method="post" action="/admin/contracts" th:object="${contractForm}">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                    <label>
+                        고객
+                        <select th:field="*{customerId}">
+                            <option value="">선택</option>
+                            <option th:each="customer : ${customers}"
+                                    th:value="${customer.id}"
+                                    th:text="${customer.name}">
+                            </option>
+                        </select>
+                    </label>
+
+                    <label>
+                        상품명
+                        <input type="text" th:field="*{productName}">
+                    </label>
+
+                    <label>
+                        수량
+                        <input type="number" th:field="*{quantity}">
+                    </label>
+
+                    <label>
+                        창고명
+                        <input type="text" th:field="*{warehouseName}">
+                    </label>
+
+                    <label>
+                        보관유형
+                        <select th:field="*{storageType}">
+                            <option value="">선택</option>
+                            <option value="NORMAL">일반</option>
+                            <option value="COLD">냉장</option>
+                            <option value="FROZEN">냉동</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        요청사항
+                        <textarea th:field="*{requestMemo}"></textarea>
+                    </label>
+
+                    <button type="submit">계약 등록</button>
+                </form>
+            </div>
+
+            <div class="panel wide">
+                <h2>계약 목록</h2>
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>고객</th>
+                        <th>상품</th>
+                        <th>수량</th>
+                        <th>창고</th>
+                        <th>보관유형</th>
+                        <th>상태</th>
+                        <th>처리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="contract : ${contracts}">
+                        <td th:text="${contract.id}"></td>
+                        <td th:text="${contract.customerName}"></td>
+                        <td th:text="${contract.productName}"></td>
+                        <td th:text="${contract.quantity}"></td>
+                        <td th:text="${contract.warehouseName}"></td>
+                        <td th:text="${contract.storageTypeLabel}"></td>
+                        <td>
+                            <span class="status" th:text="${contract.statusLabel}"></span>
+                        </td>
+                        <td>
+                            <form th:if="${contract.requested}"
+                                  method="post"
+                                  th:action="@{/admin/contracts/{id}/confirm(id=${contract.id})}">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit">확정</button>
+                            </form>
+
+                            <span th:unless="${contract.requested}">처리완료</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

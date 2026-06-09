@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>공지사항</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar" th:classappend="${isAdminPage} ? ' dark' : ''">
+        <div class="brand">
+            <div class="brand-mark" th:text="${isAdminPage} ? 'A' : 'C'">W</div>
+            <div>
+                <strong th:text="${isAdminPage} ? 'WMS 관리자' : 'WMS 고객'">WMS</strong>
+                <span th:text="${isAdminPage} ? 'Admin' : 'Customer'">Role</span>
+            </div>
+        </div>
+
+        <nav class="menu" th:if="${isAdminPage}">
+            <a href="/admin/dashboard">대시보드</a>
+            <a href="/admin/contracts">계약 관리</a>
+            <a href="/admin/inbounds">입고 관리</a>
+            <a href="/admin/inventories">재고 관리</a>
+            <a href="/admin/outbounds">출고 관리</a>
+            <a class="active" href="/admin/notices">공지사항</a>
+            <a href="/admin/inquiries">문의사항</a>
+        </nav>
+
+        <nav class="menu" th:unless="${isAdminPage}">
+            <a href="/customer/dashboard">대시보드</a>
+            <a href="/customer/inventories">재고 현황</a>
+            <a href="/customer/outbounds">출고 요청</a>
+            <a class="active" href="/customer/notices">공지사항</a>
+            <a href="/customer/inquiries">문의사항</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <section class="hero">
+            <p class="eyebrow">NOTICE</p>
+            <h1>공지사항</h1>
+            <p>WMS 운영 공지를 확인한다.</p>
+        </section>
+
+        <section class="panel" th:if="${isAdminPage}">
+            <h2>공지 등록</h2>
+
+            <form method="post" action="/admin/notices" th:object="${noticeForm}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                <label>
+                    제목
+                    <input type="text" th:field="*{title}">
+                </label>
+
+                <label>
+                    내용
+                    <textarea th:field="*{content}"></textarea>
+                </label>
+
+                <label>
+                    표시여부
+                    <select th:field="*{visible}">
+                        <option value="true">표시</option>
+                        <option value="false">숨김</option>
+                    </select>
+                </label>
+
+                <button type="submit">공지 등록</button>
+            </form>
+        </section>
+
+        <section class="panel wide">
+            <h2>공지 목록</h2>
+
+            <table>
+                <thead>
+                <tr>
+                    <th>번호</th>
+                    <th>제목</th>
+                    <th>내용</th>
+                    <th>표시</th>
+                    <th>작성일</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="notice : ${notices}">
+                    <td th:text="${notice.id}"></td>
+                    <td th:text="${notice.title}"></td>
+                    <td th:text="${notice.content}"></td>
+                    <td th:text="${notice.visible} ? '표시' : '숨김'"></td>
+                    <td th:text="${notice.createdAt}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>

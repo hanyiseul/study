@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>재고 관리</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar dark">
+        <div class="brand">
+            <div class="brand-mark">A</div>
+            <div>
+                <strong>WMS 관리자</strong>
+                <span>Admin</span>
+            </div>
+        </div>
+
+        <nav class="menu">
+            <a href="/admin/dashboard">대시보드</a>
+            <a href="/admin/contracts">계약 관리</a>
+            <a href="/admin/inbounds">입고 관리</a>
+            <a class="active" href="/admin/inventories">재고 관리</a>
+            <a href="/admin/outbounds">출고 관리</a>
+            <a href="/admin/notices">공지사항</a>
+            <a href="/admin/inquiries">문의사항</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <section class="hero">
+            <p class="eyebrow">INVENTORY</p>
+            <h1>재고 관리</h1>
+            <p>입고 완료로 생성된 전체 재고 수량과 보관 위치를 조회한다.</p>
+        </section>
+
+        <section class="panel wide">
+            <table>
+                <thead>
+                <tr>
+                    <th>번호</th>
+                    <th>고객</th>
+                    <th>상품</th>
+                    <th>수량</th>
+                    <th>창고</th>
+                    <th>구역</th>
+                    <th>파렛트</th>
+                    <th>상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="inventory : ${inventories}">
+                    <td th:text="${inventory.id}"></td>
+                    <td th:text="${inventory.customerName}"></td>
+                    <td th:text="${inventory.productName}"></td>
+                    <td th:text="${inventory.currentQuantity}"></td>
+                    <td th:text="${inventory.warehouseName}"></td>
+                    <td th:text="${inventory.storageZone}"></td>
+                    <td th:text="${inventory.palletNo}"></td>
+                    <td>
+                        <span class="status" th:text="${inventory.statusLabel}"></span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>

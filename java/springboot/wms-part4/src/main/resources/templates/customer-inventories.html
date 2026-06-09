@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 재고 현황</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark">C</div>
+            <div>
+                <strong>WMS 고객</strong>
+                <span>Customer</span>
+            </div>
+        </div>
+
+        <nav class="menu">
+            <a href="/customer/dashboard">대시보드</a>
+            <a class="active" href="/customer/inventories">재고 현황</a>
+            <a href="/customer/outbounds">출고 요청</a>
+            <a href="/customer/notices">공지사항</a>
+            <a href="/customer/inquiries">문의사항</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <section class="hero">
+            <p class="eyebrow">MY INVENTORY</p>
+            <h1>내 재고 현황</h1>
+            <p>로그인한 고객 본인의 보관 재고만 조회한다.</p>
+        </section>
+
+        <section class="panel wide">
+            <table>
+                <thead>
+                <tr>
+                    <th>번호</th>
+                    <th>상품</th>
+                    <th>수량</th>
+                    <th>창고</th>
+                    <th>구역</th>
+                    <th>파렛트</th>
+                    <th>상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="inventory : ${inventories}">
+                    <td th:text="${inventory.id}"></td>
+                    <td th:text="${inventory.productName}"></td>
+                    <td th:text="${inventory.currentQuantity}"></td>
+                    <td th:text="${inventory.warehouseName}"></td>
+                    <td th:text="${inventory.storageZone}"></td>
+                    <td th:text="${inventory.palletNo}"></td>
+                    <td>
+                        <span class="status" th:text="${inventory.statusLabel}"></span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>

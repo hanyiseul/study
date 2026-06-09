@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>출고 관리</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar dark">
+        <div class="brand">
+            <div class="brand-mark">A</div>
+            <div>
+                <strong>WMS 관리자</strong>
+                <span>Admin</span>
+            </div>
+        </div>
+
+        <nav class="menu">
+            <a href="/admin/dashboard">대시보드</a>
+            <a href="/admin/contracts">계약 관리</a>
+            <a href="/admin/inbounds">입고 관리</a>
+            <a href="/admin/inventories">재고 관리</a>
+            <a class="active" href="/admin/outbounds">출고 관리</a>
+            <a href="/admin/notices">공지사항</a>
+            <a href="/admin/inquiries">문의사항</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <section class="hero">
+            <p class="eyebrow">ADMIN OUTBOUND</p>
+            <h1>출고 관리</h1>
+            <p>고객 출고 요청을 확인하고 출고완료를 처리한다.</p>
+        </section>
+
+        <section class="panel wide">
+            <table>
+                <thead>
+                <tr>
+                    <th>번호</th>
+                    <th>고객</th>
+                    <th>상품</th>
+                    <th>수량</th>
+                    <th>상태</th>
+                    <th>희망일</th>
+                    <th>처리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="outbound : ${outbounds}">
+                    <td th:text="${outbound.id}"></td>
+                    <td th:text="${outbound.customerName}"></td>
+                    <td th:text="${outbound.productName}"></td>
+                    <td th:text="${outbound.requestQuantity}"></td>
+                    <td>
+                        <span class="status" th:text="${outbound.statusLabel}"></span>
+                    </td>
+                    <td th:text="${outbound.desiredDate}"></td>
+                    <td>
+                        <form th:if="${outbound.requested}"
+                              method="post"
+                              th:action="@{/admin/outbounds/{id}/complete(id=${outbound.id})}">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit">출고완료</button>
+                        </form>
+
+                        <span th:unless="${outbound.requested}">완료</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>

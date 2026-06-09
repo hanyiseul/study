@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>입고 관리</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar dark">
+        <div class="brand">
+            <div class="brand-mark">A</div>
+            <div>
+                <strong>WMS 관리자</strong>
+                <span>Admin</span>
+            </div>
+        </div>
+
+        <nav class="menu">
+            <a href="/admin/dashboard">대시보드</a>
+            <a href="/admin/contracts">계약 관리</a>
+            <a class="active" href="/admin/inbounds">입고 관리</a>
+            <a href="/admin/inventories">재고 관리</a>
+            <a href="/admin/outbounds">출고 관리</a>
+            <a href="/admin/notices">공지사항</a>
+            <a href="/admin/inquiries">문의사항</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <section class="hero">
+            <p class="eyebrow">INBOUND</p>
+            <h1>입고 관리</h1>
+            <p>확정된 계약을 기준으로 입고를 등록하고 입고완료를 처리한다.</p>
+        </section>
+
+        <section class="workspace">
+            <div class="panel">
+                <h2>입고 등록</h2>
+
+                <form method="post" action="/admin/inbounds" th:object="${inboundForm}">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                    <label>
+                        계약
+                        <select th:field="*{contractId}">
+                            <option value="">선택</option>
+                            <option th:each="contract : ${contracts}"
+                                    th:value="${contract.id}"
+                                    th:text="${contract.id + ' - ' + contract.productName + ' / ' + contract.statusLabel}">
+                            </option>
+                        </select>
+                    </label>
+
+                    <label>
+                        입고수량
+                        <input type="number" th:field="*{receivedQuantity}">
+                    </label>
+
+                    <label>
+                        창고명
+                        <input type="text" th:field="*{warehouseName}">
+                    </label>
+
+                    <label>
+                        보관구역
+                        <input type="text" th:field="*{storageZone}">
+                    </label>
+
+                    <label>
+                        파렛트번호
+                        <input type="text" th:field="*{palletNo}">
+                    </label>
+
+                    <button type="submit">입고 등록</button>
+                </form>
+            </div>
+
+            <div class="panel wide">
+                <h2>입고 목록</h2>
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>계약</th>
+                        <th>고객</th>
+                        <th>상품</th>
+                        <th>수량</th>
+                        <th>창고</th>
+                        <th>구역</th>
+                        <th>상태</th>
+                        <th>처리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="inbound : ${inbounds}">
+                        <td th:text="${inbound.id}"></td>
+                        <td th:text="${inbound.contractId}"></td>
+                        <td th:text="${inbound.customerName}"></td>
+                        <td th:text="${inbound.productName}"></td>
+                        <td th:text="${inbound.receivedQuantity}"></td>
+                        <td th:text="${inbound.warehouseName}"></td>
+                        <td th:text="${inbound.storageZone}"></td>
+                        <td>
+                            <span class="status" th:text="${inbound.statusLabel}"></span>
+                        </td>
+                        <td>
+                            <form th:if="${inbound.registered}"
+                                  method="post"
+                                  th:action="@{/admin/inbounds/{id}/complete(id=${inbound.id})}">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit">입고완료</button>
+                            </form>
+
+                            <span th:unless="${inbound.registered}">완료</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>
