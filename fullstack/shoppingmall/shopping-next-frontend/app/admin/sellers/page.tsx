@@ -1,0 +1,4 @@
+"use client";
+import RoleGuard from '@/components/RoleGuard';import {useEffect,useState} from 'react';
+function Inner(){const [data,setData]=useState<any>([]);async function load(){const b=await fetch('/api/admin/sellers').then(r=>r.json());setData(b.data||[]);}useEffect(()=>{load()},[]);async function act(url:string){await fetch(url,{method:'PUT'});load()}function buttons(x:any){return <span><button onClick={()=>act(`/api/admin/sellers/${x.sellerId}/approve`)}>승인</button><button onClick={()=>act(`/api/admin/sellers/${x.sellerId}/reject`)}>반려</button></span>}return <div className="card"><h1>판매자 승인</h1><table className='table'><tbody>{data.map((x:any)=><tr key={x.id||x.sellerId}><td><pre>{JSON.stringify(x,null,2)}</pre></td><td>{buttons(x)}</td></tr>)}</tbody></table></div>}
+export default function Page(){return <RoleGuard role="ADMIN"><Inner/></RoleGuard>}

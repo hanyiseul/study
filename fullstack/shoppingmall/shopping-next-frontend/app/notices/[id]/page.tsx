@@ -1,0 +1,2 @@
+async function load(id:string){const res=await fetch(`http://localhost:3100/api/notices/${id}`,{cache:'no-store'}).catch(()=>null); if(!res)return null; const b=await res.json(); return b.data}
+export default async function NoticeDetail({params}:{params:{id:string}}){const n=await load(params.id);return <div className="card"><h1>{n?.title}</h1><p className="muted">{n?.adminName}</p><p>{n?.content}</p></div>}

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="204df5a6-cfa4-4ddc-9d31-eba2acb24ed8" name="변경" comment="파일정리">
+      <change afterPath="$PROJECT_DIR$/java/basic/src/thread/Join.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/java/basic/src/thread/Main.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/java/basic/src/thread/Sleep.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/java/basic/src/thread/Synchronized.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;hanyiseul&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/hanyiseul/study.git&quot;,
+    &quot;accountId&quot;: &quot;0ac4b628-f27a-4fc7-a959-fe8a2e9b0746&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3EKoUMeEpCUixcyUyqnCGnktFrT" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/study",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\study\java\springboot" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.24374.151" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.24374.151" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="디폴트 작업">
+      <changelist id="204df5a6-cfa4-4ddc-9d31-eba2acb24ed8" name="변경" comment="" />
+      <created>1779936636602</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1779936636602</updated>
+      <workItem from="1779936637642" duration="114000" />
+      <workItem from="1780020140019" duration="675000" />
+      <workItem from="1780028768402" duration="464000" />
+      <workItem from="1780035554764" duration="894000" />
+      <workItem from="1780036470923" duration="81000" />
+      <workItem from="1780362358480" duration="32000" />
+      <workItem from="1780365798382" duration="8000" />
+      <workItem from="1780365864847" duration="287000" />
+      <workItem from="1780377576077" duration="153000" />
+      <workItem from="1780555800814" duration="40000" />
+    </task>
+    <task id="LOCAL-00001" summary="장애대응 및 예외처리 실습">
+      <option name="closed" value="true" />
+      <created>1779936673477</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1779936673478</updated>
+    </task>
+    <task id="LOCAL-00002" summary="StorageStateRepository 코드 주석 및 흐름 설명 추가">
+      <option name="closed" value="true" />
+      <created>1779936734315</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1779936734315</updated>
+    </task>
+    <task id="LOCAL-00003" summary="crud 예제 실습">
+      <option name="closed" value="true" />
+      <created>1780031785366</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1780031785366</updated>
+    </task>
+    <task id="LOCAL-00004" summary="파일정리">
+      <option name="closed" value="true" />
+      <created>1780365914724</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1780365914724</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+    <option name="exactExcludedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/typescript/src/type.js" />
+        <option value="$PROJECT_DIR$/typescript/src/type.js.map" />
+        <option value="$PROJECT_DIR$/typescript/src/type.d.ts" />
+        <option value="$PROJECT_DIR$/typescript/src/type.d.ts.map" />
+        <option value="$PROJECT_DIR$/typescript/src/interface.js" />
+        <option value="$PROJECT_DIR$/typescript/src/interface.js.map" />
+        <option value="$PROJECT_DIR$/typescript/src/interface.d.ts" />
+        <option value="$PROJECT_DIR$/typescript/src/interface.d.ts.map" />
+        <option value="$PROJECT_DIR$/typescript/src/union.js" />
+        <option value="$PROJECT_DIR$/typescript/src/union.js.map" />
+        <option value="$PROJECT_DIR$/typescript/src/union.d.ts" />
+        <option value="$PROJECT_DIR$/typescript/src/union.d.ts.map" />
+        <option value="$PROJECT_DIR$/typescript/src/basic.js" />
+        <option value="$PROJECT_DIR$/typescript/src/basic.js.map" />
+        <option value="$PROJECT_DIR$/typescript/src/basic.d.ts" />
+        <option value="$PROJECT_DIR$/typescript/src/basic.d.ts.map" />
+        <option value="$PROJECT_DIR$/typescript/src/function.js" />
+        <option value="$PROJECT_DIR$/typescript/src/function.js.map" />
+        <option value="$PROJECT_DIR$/typescript/src/function.d.ts" />
+        <option value="$PROJECT_DIR$/typescript/src/function.d.ts.map" />
+        <option value="$PROJECT_DIR$/typescript/src/array.js" />
+        <option value="$PROJECT_DIR$/typescript/src/array.js.map" />
+        <option value="$PROJECT_DIR$/typescript/src/array.d.ts" />
+        <option value="$PROJECT_DIR$/typescript/src/array.d.ts.map" />
+        <option value="$PROJECT_DIR$/typescript/src/object.js" />
+        <option value="$PROJECT_DIR$/typescript/src/object.js.map" />
+        <option value="$PROJECT_DIR$/typescript/src/object.d.ts" />
+        <option value="$PROJECT_DIR$/typescript/src/object.d.ts.map" />
+        <option value="$PROJECT_DIR$/typescript/src/generic.js" />
+        <option value="$PROJECT_DIR$/typescript/src/generic.js.map" />
+        <option value="$PROJECT_DIR$/typescript/src/generic.d.ts" />
+        <option value="$PROJECT_DIR$/typescript/src/generic.d.ts.map" />
+        <option value="$PROJECT_DIR$/typescript/src/class.js" />
+        <option value="$PROJECT_DIR$/typescript/src/class.js.map" />
+        <option value="$PROJECT_DIR$/typescript/src/class.d.ts" />
+        <option value="$PROJECT_DIR$/typescript/src/class.d.ts.map" />
+        <option value="$PROJECT_DIR$/typescript/src/index.js" />
+        <option value="$PROJECT_DIR$/typescript/src/index.js.map" />
+        <option value="$PROJECT_DIR$/typescript/src/index.d.ts" />
+        <option value="$PROJECT_DIR$/typescript/src/index.d.ts.map" />
+      </list>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="장애대응 및 예외처리 실습" />
+    <MESSAGE value="StorageStateRepository 코드 주석 및 흐름 설명 추가" />
+    <MESSAGE value="crud 예제 실습" />
+    <MESSAGE value="파일정리" />
+    <option name="LAST_COMMIT_MESSAGE" value="파일정리" />
+  </component>
+</project>

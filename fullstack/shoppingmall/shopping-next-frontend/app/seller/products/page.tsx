@@ -1,0 +1,4 @@
+"use client";
+import RoleGuard from '@/components/RoleGuard';import {useEffect,useState} from 'react';import Link from 'next/link';
+function Inner(){const [items,setItems]=useState<any[]>([]);async function load(){const b=await fetch('/api/seller/products').then(r=>r.json());setItems(b.data||[])}useEffect(()=>{load()},[]);async function stop(id:number){await fetch(`/api/seller/products/${id}`,{method:'DELETE'});load()}return <div className="card"><h1>내 상품</h1><Link className="btn" href="/seller/products/new">상품 등록</Link>{items.map(p=><p key={p.id}>{p.name} · {p.price}원 · {p.status} <Link className="btn secondary" href={`/seller/products/${p.id}/edit`}>수정</Link> <button onClick={()=>stop(p.id)}>판매중지</button></p>)}</div>}
+export default function Page(){return <RoleGuard role="SELLER"><Inner/></RoleGuard>}

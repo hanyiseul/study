@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 대시보드</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar admin">
+        <div class="brand">
+            <div class="brand-mark">A</div>
+            <div>
+                <strong>WMS 관리자</strong>
+                <span>Admin</span>
+            </div>
+        </div>
+
+        <nav class="menu">
+            <a class="active">대시보드</a>
+            <a>계약 관리</a>
+            <a>입고 관리</a>
+            <a>재고 관리</a>
+            <a>출고 관리</a>
+            <a>공지사항</a>
+            <a>문의사항</a>
+            <a>사용자 관리</a>
+        </nav>
+
+        <form method="post" action="/logout" class="logout-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit">로그아웃</button>
+        </form>
+    </aside>
+
+    <main class="content">
+        <section class="hero">
+            <p class="eyebrow">ADMIN DASHBOARD</p>
+            <h1>관리자 대시보드</h1>
+            <p th:text="${email} + ' 관리자 계정으로 로그인했습니다.'"></p>
+        </section>
+
+        <section class="summary-grid">
+            <article>
+                <span>전체 사용자</span>
+                <strong th:text="${totalUsers}">0</strong>
+                <p>가입된 전체 계정</p>
+            </article>
+            <article>
+                <span>고객 계정</span>
+                <strong th:text="${customerCount}">0</strong>
+                <p>ROLE_CUSTOMER</p>
+            </article>
+            <article>
+                <span>관리자 계정</span>
+                <strong th:text="${adminCount}">0</strong>
+                <p>ROLE_ADMIN</p>
+            </article>
+            <article>
+                <span>접근 제어</span>
+                <strong>ON</strong>
+                <p>Spring Security</p>
+            </article>
+        </section>
+
+        <section class="panel">
+            <h2>관리자 권한 확인</h2>
+            <p>
+                이 화면은 ROLE_ADMIN 권한을 가진 사용자만 접근할 수 있다.
+                고객 계정으로 접근하면 Spring Security가 접근을 차단한다.
+            </p>
+        </section>
+    </main>
+</div>
+</body>
+</html>

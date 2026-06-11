@@ -1,0 +1,4 @@
+"use client";
+import RoleGuard from '@/components/RoleGuard';import {useState} from 'react';
+function Form(){const [f,setF]=useState<any>({name:'',price:1000,stockQuantity:10,category:'전자기기',description:'',imageUrl:''});function ch(k:string,v:any){setF({...f,[k]:v})}async function submit(e:any){e.preventDefault();const res=await fetch('/api/seller/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(f)});const b=await res.json();if(!res.ok)alert(b.message);else location.href='/seller/products'}return <div className="card"><h1>상품 등록</h1><form onSubmit={submit}>{['name','price','stockQuantity','category','description','imageUrl'].map(k=><input key={k} className="input" placeholder={k} value={f[k]} onChange={e=>ch(k,k==='price'||k==='stockQuantity'?Number(e.target.value):e.target.value)}/>) }<button>저장</button></form></div>}
+export default function Page(){return <RoleGuard role="SELLER"><Form/></RoleGuard>}

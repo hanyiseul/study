@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default function Home(){return <div className="card"><h1>JPA 기반 쇼핑몰 풀스택 서비스</h1><p className="muted">Spring Boot JPA, Spring Security JWT, Next.js API Route, MariaDB 기반 실습 프로젝트입니다.</p><div className="row"><Link className="btn" href="/products">상품 보러가기</Link><Link className="btn secondary" href="/login">로그인</Link><Link className="btn secondary" href="/signup">회원가입</Link></div></div>}
