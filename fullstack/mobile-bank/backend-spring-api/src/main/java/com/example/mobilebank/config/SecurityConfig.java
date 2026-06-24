@@ -1,3 +1,4 @@
+// security 설정과 초기 데이터 생성 담당
 package com.example.mobilebank.config;
 
 import com.example.mobilebank.security.JwtAuthenticationFilter;

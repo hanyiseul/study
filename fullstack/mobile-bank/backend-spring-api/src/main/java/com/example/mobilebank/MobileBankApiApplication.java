@@ -1,3 +1,4 @@
+// Spring Boot 애플리케이션 시작점
 package com.example.mobilebank;
 
 import org.springframework.boot.SpringApplication;

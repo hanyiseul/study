@@ -1,3 +1,5 @@
+// Controller : 외부 API 요청을 받음
+// 직접 업무 로직을 처리하지 않고 Serivce를 호출
 package com.example.mobilebank.controller;
 
 import com.example.mobilebank.dto.AuthDtos.*;

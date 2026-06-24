@@ -1,3 +1,6 @@
+// Spring Boot, JPA, Security, Redis, MariaDB, JWT 의존성을 포함
+// 이 의존성들은 API 서버의 핵심 기능을 구성
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.5'

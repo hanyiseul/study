@@ -1,3 +1,4 @@
+// security : JWT 생성, JWT 해석, 인증 필터, 인증 사용자 정보를 처리
 package com.example.mobilebank.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

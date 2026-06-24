@@ -1,3 +1,5 @@
+// Service: 실제 업무 로직 처리
+// 계좌 잔액 변경, 거래 기록 저장, Redis 상태 관리, 관리자 기능이 이 계층에서 수행
 package com.example.mobilebank.service;
 
 import com.example.mobilebank.domain.*;

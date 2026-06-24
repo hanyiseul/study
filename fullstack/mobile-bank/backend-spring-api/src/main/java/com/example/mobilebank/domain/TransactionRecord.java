@@ -1,3 +1,4 @@
+// DTO : API 요청과 응답 데이터 구조를 정의
 package com.example.mobilebank.domain;
 
 import jakarta.persistence.*;
