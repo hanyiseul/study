@@ -1,0 +1,9 @@
+  ▲ Next.js 14.2.18
+  - Local:        http://localhost:3002
+  - Network:      http://0.0.0.0:3002
+
+ ✓ Starting...
+Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id
+    at setupFsCheck (/mnt/d/study/fullstack/mobile-bank/frontend-mobile-view/node_modules/next/dist/server/lib/router-utils/filesystem.js:151:19)
+    at async initialize (/mnt/d/study/fullstack/mobile-bank/frontend-mobile-view/node_modules/next/dist/server/lib/router-server.js:62:23)
+    at async Server.<anonymous> (/mnt/d/study/fullstack/mobile-bank/frontend-mobile-view/node_modules/next/dist/server/lib/start-server.js:249:36)
